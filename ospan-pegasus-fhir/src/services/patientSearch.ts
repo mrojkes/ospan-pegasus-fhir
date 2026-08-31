@@ -1,5 +1,5 @@
 import {
-  buscarPacientePorIdentificadorOspan,
+  buscarPacientePorIdHub as buscarEnPadronPorIdHub,
   buscarPacientesPorDocumentoTutor as buscarEnPadronPorDocumento,
   buscarPacientesPorNombre,
 } from "../adapters/padron/padronQueries";
@@ -36,9 +36,7 @@ function combinar(
 
   for (const p of padron) {
     const match = pegasus.find(
-      (pg) =>
-        (p.identificador_ospan && pg.IdHub === p.identificador_ospan) ||
-        false
+      (pg) => (p.id_hub && pg.IdHub === p.id_hub) || false
     );
     if (match) pegasusUsados.add(match.IdPaciente);
     resultados.push({
@@ -46,7 +44,7 @@ function combinar(
       enPegasus: Boolean(match),
       padron: p,
       pegasus: match,
-      idHub: match?.IdHub ?? p.identificador_ospan,
+      idHub: match?.IdHub ?? p.id_hub,
       idPaciente: match?.IdPaciente ?? null,
       identificadorOspan: p.identificador_ospan,
     });
@@ -112,17 +110,17 @@ export async function buscarPacientePorDocumentoTutor(documento: string): Promis
   };
 }
 
-/** Búsqueda directa por id_hub / identificador OSPAN (solo padrón, es instantánea). */
+/** Búsqueda directa por id_hub (calculado, solo padrón, es instantánea). */
 export async function buscarPacientePorIdHub(
   idHub: string
 ): Promise<PacienteEncontrado | null> {
-  const padron = await buscarPacientePorIdentificadorOspan(idHub);
+  const padron = await buscarEnPadronPorIdHub(idHub);
   if (!padron) return null;
   return {
     enPadron: true,
     enPegasus: false,
     padron,
-    idHub: padron.identificador_ospan,
+    idHub: padron.id_hub,
     idPaciente: null,
     identificadorOspan: padron.identificador_ospan,
   };
@@ -137,7 +135,7 @@ export async function buscarPacientesPorNombreMascota(
     enPadron: true,
     enPegasus: false,
     padron: p,
-    idHub: p.identificador_ospan,
+    idHub: p.id_hub,
     idPaciente: null,
     identificadorOspan: p.identificador_ospan,
   }));

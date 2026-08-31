@@ -61,6 +61,15 @@ CREATE INDEX IF NOT EXISTS idx_patient_related_person_id ON padron.patient (rela
 
 -- Datos ficticios, calzados con los ejemplos de la doc de Pegasus
 -- (mismo TutorDocumento / PacienteNombre / IdHub que "Bamba guzman").
+--
+-- El id_hub de Pegasus NO se guarda como columna: se calcula en
+-- `padronQueries.ts` a partir del uuid de `patient.id` con la fórmula
+-- confirmada por Marcelo: 'pet_' || LEFT(REPLACE(id::text, '-', ''), 15).
+-- Por eso el `id` de "Bamba guzman" de abajo se eligió a mano para que esa
+-- fórmula dé 'pet_a1b2c3d4e5f6789', que es el IdHub que usa el mock de
+-- Pegasus (scripts/mockPegasusServer.ts) -- mantenerlos en sync si se
+-- cambia alguno de los dos. `identificador_ospan` es un dato del padrón
+-- sin relación con esto (nro de carnet/membresía de OSPAN).
 INSERT INTO padron.related_person (id, nombre, apellido, documento, dni, email, telefono)
 VALUES
   ('11111111-1111-1111-1111-111111111111', 'Mariana', 'Galan', '29317482', '29317482', 'mariana.galan@example.com', '+54 11 5555-0001')
@@ -68,5 +77,5 @@ ON CONFLICT DO NOTHING;
 
 INSERT INTO padron.patient (id, identificador_ospan, nombre, estado, related_person_id)
 VALUES
-  ('22222222-2222-2222-2222-222222222222', 'pet_a1b2c3', 'Bamba guzman', 'activo', '11111111-1111-1111-1111-111111111111')
+  ('a1b2c3d4-e5f6-7890-1234-567890abcdef', 'OSP-000456', 'Bamba guzman', 'activo', '11111111-1111-1111-1111-111111111111')
 ON CONFLICT DO NOTHING;

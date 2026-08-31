@@ -40,17 +40,16 @@ Quiero que hagas lo siguiente, en este orden:
   (puede ser un tema de security group de la RDS), avisame en vez de
   asumir que es un bug del código -- primero descartar que sea red.
 
-## 2. Confirmar dos supuestos contra datos reales (documentados en el README)
+## 2. Confirmar un supuesto contra datos reales (documentado en el README)
 
-- `patient.identificador_ospan` del padrón se está asumiendo igual al
-  `id_hub` de Pegasus (`src/adapters/padron/padronTypes.ts`,
-  `padronQueries.ts`). Correr una query de verdad contra `padron.patient`
-  y comparar contra un `id_hub` conocido de Pegasus para confirmarlo (o
-  corregir el campo si no coincide).
 - La forma de la respuesta de `GET /api/ordenesmedicas/pacientes/{id}/ordenes`
   se modeló por consistencia con `/porfecha`, sin verla completa en la
   doc (`PegasusOrdenesPorPacienteResponse` en `pegasusTypes.ts`). Probar
   contra la API real y ajustar el tipo si hace falta.
+
+(El `id_hub` del padrón ya está resuelto: no es `patient.identificador_ospan`,
+se calcula con `'pet_' || LEFT(REPLACE(id::text, '-', ''), 15)` sobre
+`patient.id` — ver README, sección "`id_hub` del padrón (confirmado)".)
 
 ## 3. Pasar el sync manual a scheduled job
 

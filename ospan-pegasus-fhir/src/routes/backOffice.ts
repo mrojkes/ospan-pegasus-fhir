@@ -259,7 +259,7 @@ backOfficeRouter.get("/back-office/pacientes", async (req, res) => {
             </div>
             <div>
               <label>id_hub (OSPAN)</label>
-              <input type="text" name="id_hub" value="${escapeHtml(idHub)}" placeholder="pet_a1b2c3" />
+              <input type="text" name="id_hub" value="${escapeHtml(idHub)}" placeholder="pet_a1b2c3d4e5f6789" />
             </div>
             <div>
               <label>Nombre de la mascota</label>

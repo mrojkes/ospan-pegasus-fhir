@@ -6,10 +6,13 @@
  *
  * Este backend SOLO LEE de este schema. Nunca escribe ni migra nada acá.
  *
- * SUPUESTO A CONFIRMAR: se asume que `patient.identificador_ospan`
- * coincide con el `id_hub` que usa Pegasus para identificar la mascota
- * (es el único campo del padrón que tiene pinta de ser esa clave). Si no
- * es así, hay que ajustar `padronQueries.ts` con el campo correcto.
+ * `identificador_ospan` NO es el id_hub de Pegasus -- es un identificador
+ * propio de OSPAN (nro de carnet/membresía) sin relación con Pegasus.
+ * Confirmado por Marcelo (2026-08-31): el id_hub real se CALCULA a partir
+ * del uuid `patient.id` con la fórmula
+ * `'pet_' || LEFT(REPLACE(id::text, '-', ''), 15)`, agregado como columna
+ * calculada `id_hub` por `padronQueries.ts` (no es una columna real de la
+ * tabla, por eso no aparece en `PadronPatientRow`).
  */
 
 export interface PadronRelatedPersonRow {
@@ -63,5 +66,7 @@ export interface PadronPatientRow {
 
 /** patient + related_person (tutor) ya unidos, para mostrar en el back office. */
 export interface PadronPacienteConTutor extends PadronPatientRow {
+  /** Calculado en SQL, ver nota arriba -- NO es `identificador_ospan`. */
+  id_hub: string;
   tutor: PadronRelatedPersonRow | null;
 }

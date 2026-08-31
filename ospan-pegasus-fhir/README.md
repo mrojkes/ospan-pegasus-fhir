@@ -42,9 +42,8 @@ Dos capas, dos momentos:
 - El back office es intencionalmente simple (server-side, sin JS de
   cliente más allá de los `<form>`) — prioriza tener la demo andando
   rápido sobre la prolijidad visual.
-- Dos supuestos sin confirmar todavía (ver sección "Supuestos a
-  confirmar" más abajo): que `patient.identificador_ospan` del padrón
-  equivale al `id_hub` de Pegasus, y la forma exacta de la respuesta de
+- Queda un supuesto sin confirmar todavía (ver sección "Supuestos a
+  confirmar" más abajo): la forma exacta de la respuesta de
   `/pacientes/{idPaciente}/ordenes` (la doc no la muestra completa).
 
 ## Estructura del repo
@@ -265,18 +264,39 @@ proxea ni las descarga, así que nunca pasan por sus logs.
 Este backend **solo lee** de `padron.patient` y `padron.related_person`
 (join por `patient.related_person_id`). Nunca escribe ni migra nada ahí.
 
+### `id_hub` del padrón (confirmado)
+
+`patient.identificador_ospan` **no** es el `id_hub` que usa Pegasus —
+es un identificador propio de OSPAN (nro de carnet/membresía), sin
+relación con Pegasus. El `id_hub` real, confirmado por Marcelo
+(2026-08-31), se **calcula** a partir del uuid `patient.id`:
+
+```sql
+'pet_' || LEFT(REPLACE(id::text, '-', ''), 15)
+```
+
+(la misma fórmula existe para el tutor sobre `related_person.id`, con
+prefijo `tut_`, pero no se usa en ningún lado por ahora — Pegasus
+identifica al tutor por documento, no por un id calculado). No es una
+columna real de `padron.patient`: `padronQueries.ts` la agrega como
+columna calculada `id_hub` en cada query. Ojo de performance: al ser una
+expresión sobre el uuid y no una columna indexada, cada búsqueda por
+`id_hub` hace seq scan sobre `padron.patient`; para un padrón chico/medio
+no debería notarse en un back office de uso manual, y si llega a pesar la
+solución es cachear el mapeo `id_hub -> patient.id` en una tabla propia
+dentro de `fhir_repo` (nunca tocar el schema `padron`, que es de solo
+lectura para este backend).
+
 ### Supuestos a confirmar
 
-- **`patient.identificador_ospan` == `id_hub` de Pegasus.** Es el único
-  campo del padrón con pinta de ser esa clave, pero no está confirmado.
-  Si no coincide, hay que ajustar `padronQueries.ts`.
 - **Forma de la respuesta de `GET /pacientes/{idPaciente}/ordenes`.** La
   doc no muestra el JSON completo (solo dice "los mismos campos que en
   el listado"). Se modeló igual que `/porfecha` (`{ cantidad, ordenes[] }`)
   por consistencia — hay que confirmarlo contra una respuesta real y
   ajustar `PegasusOrdenesPorPacienteResponse` si hace falta.
-- **Nombre de la base** (`HEALTHCARE_DB_NAME`): no se compartió — hace
-  falta completarlo en `.env` / Secrets antes de poder conectar.
+
+`HEALTHCARE_DB_NAME` es `ospan` (confirmado por Marcelo vía las
+propiedades de conexión de pgAdmin).
 
 ## Pensado para sumar otros HIS
 

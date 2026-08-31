@@ -24,7 +24,7 @@ const ordenBase = {
   CoberturaNombre: "OSPAN",
   NroAfiliado: "29317482",
   IdPaciente: 117823,
-  IdHub: "pet_a1b2c3",
+  IdHub: "pet_a1b2c3d4e5f6789",
   PacienteNombre: "Bamba guzman",
   PacienteFechaNac: "2021-02-10",
   EspecieNombre: "Felino",
@@ -87,7 +87,7 @@ let estadoActualOrden36988 = 1;
 app.get("/api/ordenesmedicas", (req, res) => {
   const idHub = req.query.id_hub;
   if (!idHub) return res.status(400).json({ error: "id_hub requerido" });
-  if (idHub !== "pet_a1b2c3") {
+  if (idHub !== "pet_a1b2c3d4e5f6789") {
     return res.json({ id_hub: idHub, cantidad: 0, ordenes: [] });
   }
   const orden = { ...ordenBase, IdEstado: estadoActualOrden36988, EstadoNombre: estadoActualOrden36988 === 1 ? "Pendiente de realizacion" : "Realizada" };
@@ -122,7 +122,7 @@ app.get("/api/ordenesmedicas/pacientes", (req, res) => {
     pacientes: [
       {
         IdPaciente: 117823,
-        IdHub: "pet_a1b2c3",
+        IdHub: "pet_a1b2c3d4e5f6789",
         PacienteNombre: "Bamba guzman",
         PacienteFechaNac: "2021-02-10T00:00:00",
         EspecieNombre: "Felino",
