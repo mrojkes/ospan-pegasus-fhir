@@ -1,0 +1,391 @@
+{
+  "info": {
+    "name": "OSPAN - Pegasus (Panda) - Ordenes medicas",
+    "description": "Pruebas contra la API de Pegasus (Panda HIS) y contra el backend OSPAN que la consume (proxy crudo + transformacion a FHIR R4). Requiere el environment 'OSPAN - Pegasus (Panda)'.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "0. Backend - Health",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{backend_base_url}}/health",
+              "host": ["{{backend_base_url}}"],
+              "path": ["health"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "1. Pegasus Panda (directo)",
+      "description": "Llamadas directas a la API de Pegasus, tal como esta documentada. Sirven para validar credenciales y comparar contra lo que devuelve el backend.",
+      "item": [
+        {
+          "name": "GET ordenesmedicas (listado por id_hub)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{pegasus_token}}" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{pegasus_base_url}}/api/ordenesmedicas?id_hub={{id_hub}}&desde=&hasta=&estado=&top=",
+              "host": ["{{pegasus_base_url}}"],
+              "path": ["api", "ordenesmedicas"],
+              "query": [
+                { "key": "id_hub", "value": "{{id_hub}}" },
+                { "key": "desde", "value": "", "disabled": true, "description": "AAAA-MM-DD" },
+                { "key": "hasta", "value": "", "disabled": true, "description": "AAAA-MM-DD" },
+                { "key": "estado", "value": "", "disabled": true, "description": "1-7, ver tabla de estados" },
+                { "key": "top", "value": "", "disabled": true, "description": "default 500, tope 2000" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET ordenesmedicas/{id} (detalle)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{pegasus_token}}" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{pegasus_base_url}}/api/ordenesmedicas/{{id_orden_medica}}?id_hub={{id_hub}}",
+              "host": ["{{pegasus_base_url}}"],
+              "path": ["api", "ordenesmedicas", "{{id_orden_medica}}"],
+              "query": [
+                { "key": "id_hub", "value": "{{id_hub}}", "disabled": true, "description": "Opcional: si se manda, exige que la orden sea de esa mascota" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET ordenesmedicas/porfecha (todas las coberturas)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{pegasus_token}}" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{pegasus_base_url}}/api/ordenesmedicas/porfecha?desde={{fecha_sync}}&hasta={{fecha_sync}}",
+              "host": ["{{pegasus_base_url}}"],
+              "path": ["api", "ordenesmedicas", "porfecha"],
+              "query": [
+                { "key": "desde", "value": "{{fecha_sync}}", "description": "obligatorio" },
+                { "key": "hasta", "value": "{{fecha_sync}}", "description": "opcional, maximo 31 dias de rango" },
+                { "key": "cobertura", "value": "", "disabled": true, "description": "codigo de cobertura para acotar" },
+                { "key": "top", "value": "", "disabled": true }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET ordenesmedicas/pacientes (por documento_tutor)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{pegasus_token}}" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{pegasus_base_url}}/api/ordenesmedicas/pacientes?documento_tutor={{documento_tutor}}",
+              "host": ["{{pegasus_base_url}}"],
+              "path": ["api", "ordenesmedicas", "pacientes"],
+              "query": [
+                { "key": "documento_tutor", "value": "{{documento_tutor}}" },
+                { "key": "top", "value": "", "disabled": true, "description": "default 200, tope 2000" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET ordenesmedicas/pacientes/{idPaciente}/ordenes",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{pegasus_token}}" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{pegasus_base_url}}/api/ordenesmedicas/pacientes/{{id_paciente}}/ordenes",
+              "host": ["{{pegasus_base_url}}"],
+              "path": ["api", "ordenesmedicas", "pacientes", "{{id_paciente}}", "ordenes"],
+              "query": [
+                { "key": "desde", "value": "", "disabled": true },
+                { "key": "hasta", "value": "", "disabled": true },
+                { "key": "top", "value": "", "disabled": true }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "2. Backend OSPAN - Proxy crudo",
+      "description": "El backend reenvia la llamada a Pegasus con el token del servidor (no hace falta mandar Authorization desde Postman) y devuelve el JSON tal cual.",
+      "item": [
+        {
+          "name": "GET /api/pegasus/ordenesmedicas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{backend_base_url}}/api/pegasus/ordenesmedicas?id_hub={{id_hub}}",
+              "host": ["{{backend_base_url}}"],
+              "path": ["api", "pegasus", "ordenesmedicas"],
+              "query": [
+                { "key": "id_hub", "value": "{{id_hub}}" },
+                { "key": "desde", "value": "", "disabled": true },
+                { "key": "hasta", "value": "", "disabled": true },
+                { "key": "estado", "value": "", "disabled": true },
+                { "key": "top", "value": "", "disabled": true }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/pegasus/ordenesmedicas/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{backend_base_url}}/api/pegasus/ordenesmedicas/{{id_orden_medica}}?id_hub={{id_hub}}",
+              "host": ["{{backend_base_url}}"],
+              "path": ["api", "pegasus", "ordenesmedicas", "{{id_orden_medica}}"],
+              "query": [
+                { "key": "id_hub", "value": "{{id_hub}}", "disabled": true }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/pegasus/ordenesmedicas/porfecha",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{backend_base_url}}/api/pegasus/ordenesmedicas/porfecha?desde={{fecha_sync}}&hasta={{fecha_sync}}",
+              "host": ["{{backend_base_url}}"],
+              "path": ["api", "pegasus", "ordenesmedicas", "porfecha"],
+              "query": [
+                { "key": "desde", "value": "{{fecha_sync}}" },
+                { "key": "hasta", "value": "{{fecha_sync}}" },
+                { "key": "cobertura", "value": "", "disabled": true },
+                { "key": "top", "value": "", "disabled": true }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/pegasus/ordenesmedicas/pacientes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{backend_base_url}}/api/pegasus/ordenesmedicas/pacientes?documento_tutor={{documento_tutor}}",
+              "host": ["{{backend_base_url}}"],
+              "path": ["api", "pegasus", "ordenesmedicas", "pacientes"],
+              "query": [{ "key": "documento_tutor", "value": "{{documento_tutor}}" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/pegasus/ordenesmedicas/pacientes/:idPaciente/ordenes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{backend_base_url}}/api/pegasus/ordenesmedicas/pacientes/{{id_paciente}}/ordenes",
+              "host": ["{{backend_base_url}}"],
+              "path": ["api", "pegasus", "ordenesmedicas", "pacientes", "{{id_paciente}}", "ordenes"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "3. Backend OSPAN - FHIR",
+      "description": "Misma data que el proxy crudo, pero transformada a un Bundle FHIR R4 (Patient, RelatedPerson, Practitioner, Organization, Coverage, ServiceRequest, Observation, DiagnosticReport, DocumentReference).",
+      "item": [
+        {
+          "name": "GET /api/fhir/ordenesmedicas (Bundle deduplicado)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{backend_base_url}}/api/fhir/ordenesmedicas?id_hub={{id_hub}}",
+              "host": ["{{backend_base_url}}"],
+              "path": ["api", "fhir", "ordenesmedicas"],
+              "query": [
+                { "key": "id_hub", "value": "{{id_hub}}" },
+                { "key": "desde", "value": "", "disabled": true },
+                { "key": "hasta", "value": "", "disabled": true },
+                { "key": "estado", "value": "", "disabled": true },
+                { "key": "top", "value": "", "disabled": true }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/fhir/ordenesmedicas/:id (Bundle de una orden)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{backend_base_url}}/api/fhir/ordenesmedicas/{{id_orden_medica}}?id_hub={{id_hub}}",
+              "host": ["{{backend_base_url}}"],
+              "path": ["api", "fhir", "ordenesmedicas", "{{id_orden_medica}}"],
+              "query": [
+                { "key": "id_hub", "value": "{{id_hub}}", "disabled": true }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "4. Back office (HTML, prototipo v2)",
+      "description": "Páginas server-side del back office. Devuelven HTML (útil para chequear que responden 200 desde Postman; para usarlo de verdad abrir estas mismas URLs en el navegador).",
+      "item": [
+        {
+          "name": "Inicio",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{backend_base_url}}/back-office", "host": ["{{backend_base_url}}"], "path": ["back-office"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Sincronizar por fecha (form)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{backend_base_url}}/back-office/sync", "host": ["{{backend_base_url}}"], "path": ["back-office", "sync"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Disparar sync por fecha (POST)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "desde", "value": "{{fecha_sync}}" },
+                { "key": "hasta", "value": "{{fecha_sync}}" },
+                { "key": "cobertura", "value": "" }
+              ]
+            },
+            "url": { "raw": "{{backend_base_url}}/back-office/sync", "host": ["{{backend_base_url}}"], "path": ["back-office", "sync"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar paciente (por documento del tutor)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{backend_base_url}}/back-office/pacientes?documento={{documento_tutor}}",
+              "host": ["{{backend_base_url}}"],
+              "path": ["back-office", "pacientes"],
+              "query": [{ "key": "documento", "value": "{{documento_tutor}}" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar paciente (por id_hub)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{backend_base_url}}/back-office/pacientes?id_hub={{id_hub}}",
+              "host": ["{{backend_base_url}}"],
+              "path": ["back-office", "pacientes"],
+              "query": [{ "key": "id_hub", "value": "{{id_hub}}" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Ver estudios (por id_hub, local-first)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{backend_base_url}}/back-office/estudios?id_hub={{id_hub}}",
+              "host": ["{{backend_base_url}}"],
+              "path": ["back-office", "estudios"],
+              "query": [{ "key": "id_hub", "value": "{{id_hub}}" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Ver estudios (forzar traer en vivo de Pegasus)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{backend_base_url}}/back-office/estudios?id_hub={{id_hub}}&fresh=1",
+              "host": ["{{backend_base_url}}"],
+              "path": ["back-office", "estudios"],
+              "query": [
+                { "key": "id_hub", "value": "{{id_hub}}" },
+                { "key": "fresh", "value": "1" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Ver estudios (mascota que no es de OSPAN, por IdPaciente)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{backend_base_url}}/back-office/estudios?id_paciente={{id_paciente}}",
+              "host": ["{{backend_base_url}}"],
+              "path": ["back-office", "estudios"],
+              "query": [{ "key": "id_paciente", "value": "{{id_paciente}}" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reportes (por estado y por profesional)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{backend_base_url}}/back-office/reportes", "host": ["{{backend_base_url}}"], "path": ["back-office", "reportes"] }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
