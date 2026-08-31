@@ -30,10 +30,13 @@ Quiero que hagas lo siguiente, en este orden:
   `HEALTHCARE_DB_HOST`, `HEALTHCARE_DB_PORT`, `HEALTHCARE_DB_NAME`,
   `HEALTHCARE_DB_USER`, `HEALTHCARE_DB_PASSWORD`, `HEALTHCARE_DB_SSL`
   (ver `.env.example`). **Nunca** los pongas en un archivo del repo.
-- Antes de conectar contra la base real, correr
-  `db/001-fhir-repo-schema.sql` contra ella UNA vez (es idempotente, se
-  puede re-correr sin problema) para crear el schema `fhir_repo`. No toca
-  `padron` ni ningún otro schema existente.
+- Antes de usar el back office contra la base real, correr `npm run
+  migrate` UNA vez (ejecuta `db/001-fhir-repo-schema.sql` contra la base
+  configurada en los Secrets; es idempotente, se puede re-correr sin
+  problema) para crear el schema `fhir_repo`. No toca `padron` ni ningún
+  otro schema existente. Si da error de permisos en `CREATE EXTENSION
+  pgcrypto`, es que el usuario de Secrets no tiene privilegio para crear
+  extensiones en esa base -- avisame en vez de intentar sortearlo.
 - Confirmar que `GET /health` responde y que
   `npx tsx scripts/testWithMock.ts` corre sin red y sin errores.
 - Si por ahora no hay conectividad a la base real desde Replit tampoco

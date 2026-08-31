@@ -81,6 +81,7 @@ db/
 scripts/
   testWithMock.ts                    Prueba los mappers FHIR sin red
   mockPegasusServer.ts               Mock local de la API de Pegasus, SOLO para desarrollo
+  migrate.ts                         Corre las migraciones de db/*.sql contra HEALTHCARE_DB_* (npm run migrate)
 postman/                             Colección + environment
 ```
 
@@ -100,6 +101,18 @@ postman/                             Colección + environment
    pantalla inicial de "creá una app") y pegar el contenido de
    `REPLIT_PROMPT.md` tal cual.
 
+### Actualizar el código más adelante
+
+Si no tenés el repo clonado con `git` en tu máquina (solo lo subiste
+arrastrando archivos la vez pasada), para actualizarlo repetís el mismo
+paso 3 de arriba: descomprimís el `.zip` nuevo y volvés a arrastrar su
+contenido en la página del repo en GitHub — pisa los archivos que
+cambiaron. Para que Replit tome esos cambios, el panel de Git del Repl no
+siempre muestra un botón de "Pull" visible; es más confiable pedírselo
+directamente al Agent por chat ("traé los cambios nuevos de
+`origin/main`"), que tiene acceso a la terminal y puede hacer el
+fetch/sync solo.
+
 `.gitignore` ya excluye `node_modules`, `dist`, `.env` y `*.log` — no se
 sube nada de eso, y las credenciales van como Secrets de Replit, nunca
 como archivo en el repo.
@@ -111,18 +124,17 @@ como archivo en el repo.
 Este backend usa la misma base Postgres "healthcare" (AWS RDS) donde ya
 vive el schema `padron` — pero en un schema **propio y separado**,
 `fhir_repo`, que no toca `padron`/`core`/`financial`/`public`/`temp`/
-`terminology`/`vet`. Antes de correr el backend contra la base real:
+`terminology`/`vet`. Antes de usar el back office contra la base real,
+con `HEALTHCARE_DB_*` ya configurado (`.env` o Secrets):
 
 ```bash
-# revisar el archivo primero -- es seguro re-ejecutarlo (todo con IF NOT EXISTS)
-psql "postgresql://usuario:password@host:5432/nombre_base" -f db/001-fhir-repo-schema.sql
+npm run migrate   # corre db/001-fhir-repo-schema.sql -- idempotente, seguro re-ejecutarlo
 ```
 
-**Importante:** no se pudo probar la conexión a la base real desde este
-entorno de desarrollo (timeout al conectar — probablemente el security
-group de la RDS solo permite IPs conocidas). Probar la conexión desde
-donde vaya a correr esto de verdad (tu máquina, Replit, etc.) y confirmar
-el nombre de la base (no estaba entre los datos compartidos).
+Si da error de permisos en `CREATE EXTENSION pgcrypto`, el usuario de la
+conexión no tiene privilegio para crear extensiones en esa base — no es
+un problema del código, hay que resolverlo del lado de la base (pedirle
+al admin de la RDS que la cree, o que dé el privilegio).
 
 Para desarrollo local sin tocar la base real, `db/dev-seed-padron.sql`
 crea un schema `padron` de juguete con la misma forma (columnas) que el
@@ -148,8 +160,8 @@ Postgres local):
 ```bash
 npx tsx scripts/mockPegasusServer.ts &     # mock de Pegasus en :4001
 psql -f db/dev-seed-padron.sql             # contra tu Postgres local
-psql -f db/001-fhir-repo-schema.sql        # contra tu Postgres local
 # .env apuntando PEGASUS_BASE_URL a http://localhost:4001 y HEALTHCARE_DB_* a tu Postgres local
+npm run migrate
 npm run dev
 # abrir http://localhost:3000/back-office
 ```
