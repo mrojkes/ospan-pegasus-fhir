@@ -110,6 +110,12 @@ export interface OrdenMedicaActualRow {
   fecha_orden: string | null;
   fecha_resultados: string | null;
   fhir_bundle: Bundle;
+  /** JSON crudo de Pegasus tal cual vino, guardado en cada version. Fuente
+   * para campos que no se mapearon a FHIR (Diagnostico, EvoOrdenMedica,
+   * EvoOrdenMedicaResultados) y para los datos de mascota/tutor del
+   * encabezado de la ficha de estudios (PacienteFechaNac, EspecieNombre,
+   * RazaNombre, TutorNombre, TutorDocumento). */
+  raw_pegasus: PegasusOrdenMedica;
   synced_at: string;
 }
 
@@ -121,7 +127,7 @@ async function listActual(
     `select id_orden_medica, version, id_hub, id_paciente, paciente_nombre,
             id_tutor, tutor_documento, id_estado, estado_nombre,
             medico_nombre, servicio_nombre, cobertura_nombre, fecha_orden,
-            fecha_resultados, fhir_bundle, synced_at
+            fecha_resultados, fhir_bundle, raw_pegasus, synced_at
      from fhir_repo.orden_medica_actual
      where ${where}
      order by fecha_orden desc nulls last`,

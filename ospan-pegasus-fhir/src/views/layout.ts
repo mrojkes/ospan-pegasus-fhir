@@ -82,6 +82,12 @@ export function renderPage(title: string, bodyHtml: string, activePath = ""): st
   a { color: var(--accent); }
   .adjunto-link { display: inline-block; margin: 2px 6px 2px 0; font-size: 12px; }
   details summary { cursor: pointer; color: var(--accent); font-size: 12px; margin-top: 8px; }
+  .field-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin: 12px 0 4px; font-weight: 600; }
+  .evo-block { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 13px; }
+  .evo-block p:first-child { margin-top: 0; }
+  .evo-block p:last-child { margin-bottom: 0; }
+  .paciente-header h2 { margin-bottom: 4px; }
+  .paciente-header .especie { font-weight: 400; font-size: 13px; color: var(--muted); }
 </style>
 </head>
 <body>

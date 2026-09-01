@@ -34,8 +34,9 @@ const ordenBase = {
   TutorDocumento: 29317482,
   Diagnostico: "control",
   Notas: null,
-  EvoOrdenMedica: null,
-  EvoOrdenMedicaResultados: null,
+  EvoOrdenMedica: "Solicito:<br>113 ECOGRAFIA ABDOMINAL<br><br>Diagnóstico: control",
+  EvoOrdenMedicaResultados:
+    "<p><strong>ECOGRAFIA ABDOMINAL &nbsp;</strong><br><small><i></i></small></p><p><h4>Detalle</h4><p>sin hallazgos patológicos</p></p>",
   Informe: null,
   FechaResultados: null,
   Recetario_Url: null,

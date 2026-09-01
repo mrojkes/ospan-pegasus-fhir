@@ -15,6 +15,7 @@ import {
   PacienteEncontrado,
 } from "../services/patientSearch";
 import { obtenerEstudiosPaciente } from "../services/estudios";
+import type { OrdenMedicaActualRow } from "../persistence/ordenMedicaRepo";
 
 export const backOfficeRouter = Router();
 
@@ -317,6 +318,7 @@ backOfficeRouter.get("/back-office/estudios", async (req, res) => {
     refreshParams.set("fresh", "1");
 
     bodyHtml = `
+      ${resultado.ordenes.length > 0 ? renderPacienteHeader(resultado.ordenes[0]) : ""}
       <div class="card">
         <h2>Estudios ${idHub ? `· id_hub ${escapeHtml(idHub)}` : idPaciente ? `· IdPaciente ${escapeHtml(idPaciente)}` : ""}</h2>
         <p class="muted">
@@ -339,9 +341,38 @@ backOfficeRouter.get("/back-office/estudios", async (req, res) => {
   res.send(renderPage("Estudios", bodyHtml, "/back-office/pacientes"));
 });
 
-async function renderOrdenCard(o: any): Promise<string> {
+/**
+ * Encabezado de la ficha de estudios: datos de la mascota y del tutor,
+ * tomados del `raw_pegasus` de la primera orden (todas las órdenes de una
+ * misma búsqueda son de la misma mascota, así que alcanza con la primera).
+ * No viene de una tabla propia -- es el mismo JSON de Pegasus que ya se
+ * persiste con cada orden.
+ */
+function renderPacienteHeader(primera: OrdenMedicaActualRow): string {
+  const raw = primera.raw_pegasus;
+  const fechaNac = raw.PacienteFechaNac
+    ? new Date(raw.PacienteFechaNac).toLocaleDateString("es-AR")
+    : "-";
+  const especieRaza = [raw.EspecieNombre, raw.RazaNombre]
+    .filter(Boolean)
+    .join(" · ");
+
+  return `
+    <div class="card paciente-header">
+      <h2>${escapeHtml(raw.PacienteNombre ?? "(sin nombre)")}${especieRaza ? ` <span class="especie">${escapeHtml(especieRaza)}</span>` : ""}</h2>
+      <p class="muted">
+        Nacimiento: ${escapeHtml(fechaNac)}
+        · Tutor: ${escapeHtml(raw.TutorNombre ?? "-")}
+        · Documento: ${escapeHtml(raw.TutorDocumento != null ? String(raw.TutorDocumento) : "-")}
+      </p>
+    </div>
+  `;
+}
+
+async function renderOrdenCard(o: OrdenMedicaActualRow): Promise<string> {
   const partes = extraerPartes(o.fhir_bundle);
   const historial = await listHistorialPorOrden(o.id_orden_medica);
+  const raw = o.raw_pegasus;
 
   const itemsHtml = partes.observations
     .map((obs) => {
@@ -355,6 +386,26 @@ async function renderOrdenCard(o: any): Promise<string> {
       </tr>`;
     })
     .join("");
+
+  // Diagnostico/EvoOrdenMedica/EvoOrdenMedicaResultados no se mapearon a
+  // FHIR (ver README) -- se muestran directo desde el raw_pegasus
+  // persistido. Diagnostico es texto plano (se escapa). EvoOrdenMedica y
+  // EvoOrdenMedicaResultados vienen de Pegasus YA como HTML de
+  // presentación (con <br>, <p>, <h4>, <strong> -- así lo define su propia
+  // API, ver pegasusTypes.ts), así que se insertan tal cual, sin escapar,
+  // para que se vean formateados como los arma Pegasus. Se confía en el
+  // HTML de este sistema de origen; no es contenido tipeado por un usuario
+  // de este back office.
+  const diagnostico =
+    raw.Diagnostico && raw.Diagnostico.trim() && raw.Diagnostico !== "-"
+      ? `<p><strong>Diagnóstico:</strong> ${escapeHtml(raw.Diagnostico)}</p>`
+      : "";
+  const evoSolicitud = raw.EvoOrdenMedica
+    ? `<div class="field-label">Solicitud médica</div><div class="evo-block">${raw.EvoOrdenMedica}</div>`
+    : "";
+  const evoResultados = raw.EvoOrdenMedicaResultados
+    ? `<div class="field-label">Resultados</div><div class="evo-block">${raw.EvoOrdenMedicaResultados}</div>`
+    : "";
 
   const adjuntosHtml = partes.documentRefs
     .map((d) => {
@@ -400,7 +451,10 @@ async function renderOrdenCard(o: any): Promise<string> {
         · Solicitó: ${escapeHtml(o.medico_nombre ?? "-")}
         · Cobertura: ${escapeHtml(o.cobertura_nombre ?? "-")}
       </p>
+      ${diagnostico}
       ${itemsHtml ? `<table><thead><tr><th>Práctica</th><th>Estado</th><th>Resultado</th></tr></thead><tbody>${itemsHtml}</tbody></table>` : ""}
+      ${evoSolicitud}
+      ${evoResultados}
       ${adjuntosHtml ? `<div style="margin-top:10px;">${adjuntosHtml}</div>` : ""}
       ${historialHtml}
     </div>
