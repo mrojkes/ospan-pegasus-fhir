@@ -10,7 +10,8 @@
     "dev": "tsx watch src/index.ts",
     "typecheck": "tsc --noEmit",
     "test:mock": "tsx scripts/testWithMock.ts",
-    "migrate": "tsx scripts/migrate.ts"
+    "migrate": "tsx scripts/migrate.ts",
+    "reprocesar-bundles": "tsx scripts/reprocesarBundles.ts"
   },
   "dependencies": {
     "cors": "^2.8.5",

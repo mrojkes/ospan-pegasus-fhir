@@ -1,6 +1,7 @@
 import { getPool } from "./db";
 import type { PegasusOrdenMedica } from "../adapters/pegasus/pegasusTypes";
 import type { Bundle } from "../fhir/types/r4";
+import { mapOrdenToBundle } from "../fhir/mappers/bundle";
 
 const SOURCE_SYSTEM = "pegasus-panda";
 
@@ -92,6 +93,97 @@ export async function upsertVersionSiCambio(
   } finally {
     client.release();
   }
+}
+
+interface FilaParaReprocesar {
+  source_system: string;
+  id_orden_medica: number;
+  version: number;
+  raw_pegasus: PegasusOrdenMedica;
+  fhir_bundle: Bundle;
+}
+
+/**
+ * JSON.stringify "canonico": ordena las claves de cada objeto de forma
+ * recursiva. Postgres (columna `jsonb`) NO conserva el orden original de
+ * las claves de un objeto al guardarlo -- así que comparar por texto un
+ * Bundle recien calculado en JS contra uno que volvio de la base con un
+ * JSON.stringify comun casi siempre da "distinto" aunque el contenido sea
+ * identico. Los arrays si conservan su orden (son semanticamente
+ * distintos si cambia el orden), por eso solo se ordenan los objetos.
+ */
+function stringifyCanonico(valor: unknown): string {
+  const ordenar = (v: unknown): unknown => {
+    if (Array.isArray(v)) return v.map(ordenar);
+    if (v !== null && typeof v === "object") {
+      const claves = Object.keys(v as Record<string, unknown>).sort();
+      const objetoOrdenado: Record<string, unknown> = {};
+      for (const clave of claves) {
+        objetoOrdenado[clave] = ordenar((v as Record<string, unknown>)[clave]);
+      }
+      return objetoOrdenado;
+    }
+    return v;
+  };
+  return JSON.stringify(ordenar(valor));
+}
+
+/**
+ * Recalcula el `fhir_bundle` guardado de la version ACTUAL de cada orden,
+ * a partir del `raw_pegasus` que ya tenemos persistido (ese no se toca).
+ *
+ * Es la UNICA excepcion al principio de este archivo de "nunca UPDATE,
+ * siempre INSERT una version nueva": el `fhir_bundle` es un dato
+ * DERIVADO -- se recalcula 100% a partir de `raw_pegasus` con el mapper
+ * FHIR actual (src/fhir/mappers/*), no representa un cambio de estado
+ * clinico de la orden. Corregir un bug en como se lo calculaba (por
+ * ejemplo, el fix de "&nbsp;" en observation.ts) no es una version nueva
+ * de la orden -- por eso esto hace UPDATE en vez de INSERT, y no toca ni
+ * `version` ni `id_estado` ni el historial (listHistorialPorOrden sigue
+ * mostrando las mismas versiones que antes).
+ *
+ * Hace falta correr esto (via `npm run reprocesar-bundles`) despues de
+ * cada cambio en un mapper de FHIR: las ordenes que ya estaban
+ * sincronizadas y NO cambiaron de IdEstado desde entonces nunca vuelven a
+ * pasar por el mapper en un sync normal (ver upsertVersionSiCambio de
+ * arriba) y se quedan con el bundle calculado con el mapper viejo.
+ */
+export async function reprocesarBundles(): Promise<{
+  revisadas: number;
+  actualizadas: number;
+}> {
+  const pool = getPool();
+  const { rows } = await pool.query<FilaParaReprocesar>(
+    `select source_system, id_orden_medica, version, raw_pegasus, fhir_bundle
+     from fhir_repo.orden_medica_actual`
+  );
+
+  let actualizadas = 0;
+  for (const fila of rows) {
+    const bundleNuevo = mapOrdenToBundle(fila.raw_pegasus);
+
+    // El Bundle lleva un `timestamp` (momento en que se calculo) que
+    // cambia siempre, aunque el contenido clinico sea identico -- hay que
+    // ignorarlo al comparar, si no esto nunca seria idempotente y
+    // marcaria "actualizada" cada orden en cada corrida.
+    const sinTimestamp = ({ timestamp: _timestamp, ...resto }: Bundle) => resto;
+    if (
+      stringifyCanonico(sinTimestamp(bundleNuevo)) ===
+      stringifyCanonico(sinTimestamp(fila.fhir_bundle))
+    ) {
+      continue;
+    }
+
+    await pool.query(
+      `update fhir_repo.orden_medica_snapshot
+       set fhir_bundle = $1
+       where source_system = $2 and id_orden_medica = $3 and version = $4`,
+      [JSON.stringify(bundleNuevo), fila.source_system, fila.id_orden_medica, fila.version]
+    );
+    actualizadas++;
+  }
+
+  return { revisadas: rows.length, actualizadas };
 }
 
 export interface OrdenMedicaActualRow {

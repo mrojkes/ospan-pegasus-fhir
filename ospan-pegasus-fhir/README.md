@@ -82,6 +82,7 @@ scripts/
   testWithMock.ts                    Prueba los mappers FHIR sin red
   mockPegasusServer.ts               Mock local de la API de Pegasus, SOLO para desarrollo
   migrate.ts                         Corre las migraciones de db/*.sql contra HEALTHCARE_DB_* (npm run migrate)
+  reprocesarBundles.ts               Recalcula el fhir_bundle guardado de ordenes ya sincronizadas con un mapper viejo (npm run reprocesar-bundles)
 postman/                             Colección + environment
 ```
 
@@ -135,6 +136,30 @@ Si da error de permisos en `CREATE EXTENSION pgcrypto`, el usuario de la
 conexión no tiene privilegio para crear extensiones en esa base — no es
 un problema del código, hay que resolverlo del lado de la base (pedirle
 al admin de la RDS que la cree, o que dé el privilegio).
+
+### 1.b Reprocesar órdenes ya sincronizadas (después de un fix en un mapper)
+
+El `fhir_bundle` de cada orden se calcula UNA VEZ, en el momento del
+sync, y se guarda tal cual — no se vuelve a calcular en cada sync
+siguiente si el estado (`IdEstado`) de la orden no cambió (ver
+"versionado por estado" más abajo). Esto significa que si se corrige un
+bug en algún mapper de `src/fhir/mappers/*` (por ejemplo, el fix del
+`&nbsp;` en `observation.ts`), las órdenes que **ya estaban
+sincronizadas antes del fix** se quedan con el bundle viejo — los
+mappers nuevos solo se aplican a partir de la próxima vez que esa orden
+cambie de estado.
+
+Para corregir de una sola vez todas las órdenes ya guardadas, sin volver
+a llamar a Pegasus y sin crear versiones nuevas en el historial (recalcula
+el `fhir_bundle` a partir del `raw_pegasus` que ya está guardado):
+
+```bash
+npm run reprocesar-bundles
+```
+
+Es seguro correrlo las veces que haga falta — si una orden ya tiene el
+bundle al día, no la toca. Conviene correrlo una vez después de cada
+despliegue que incluya un cambio en `src/fhir/mappers/*`.
 
 Para desarrollo local sin tocar la base real, `db/dev-seed-padron.sql`
 crea un schema `padron` de juguete con la misma forma (columnas) que el
