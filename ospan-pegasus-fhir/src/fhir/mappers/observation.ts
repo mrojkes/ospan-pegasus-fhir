@@ -26,6 +26,22 @@ function resolveReferenceRange(
   return [{ text: item.ValoresReferencia }];
 }
 
+/**
+ * En Panda, cuando un item no tiene valor cargado, `Valor` (y a veces
+ * `TextValor`) no vienen vacios/null sino con el placeholder HTML
+ * "&nbsp;" (un espacio no separable). Sin este chequeo, ese placeholder
+ * se guardaba tal cual en `valueString` y terminaba mostrandose como
+ * texto literal "&nbsp;" en el back office en vez de tratarse como "sin
+ * valor". Es visualmente distinto de EvoOrdenMedicaResultados (campo de
+ * la ORDEN, no del item) -- ese SI trae contenido real y se muestra
+ * aparte, sin tocar.
+ */
+function esValorVacio(valor: string | null | undefined): boolean {
+  if (valor === null || valor === undefined) return true;
+  const limpio = valor.replace(/&nbsp;/gi, "").replace(/[\s ]/g, "");
+  return limpio.length === 0;
+}
+
 export function mapObservationFromItem(
   orden: PegasusOrdenMedica,
   item: PegasusOrdenMedicaItem
@@ -40,8 +56,7 @@ export function mapObservationFromItem(
   });
 
   const hasNumValor = item.NumValor !== null && item.NumValor !== undefined;
-  const hasTextValor =
-    item.TextValor !== null && item.TextValor !== undefined && item.TextValor !== "";
+  const hasTextValor = !esValorVacio(item.TextValor);
 
   const obs: Observation = {
     resourceType: "Observation",
@@ -84,8 +99,8 @@ export function mapObservationFromItem(
     };
   } else if (hasTextValor) {
     obs.valueString = item.TextValor as string;
-  } else if (item.Valor) {
-    obs.valueString = item.Valor;
+  } else if (!esValorVacio(item.Valor)) {
+    obs.valueString = item.Valor as string;
   } else {
     // Consistente con la doc: en Panda estos campos "casi nunca se cargan".
     obs.dataAbsentReason = { text: "No cargado en origen (Panda)" };

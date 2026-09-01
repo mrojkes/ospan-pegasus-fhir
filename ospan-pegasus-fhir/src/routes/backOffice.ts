@@ -7,6 +7,7 @@ import {
   listHistorialPorOrden,
   reportePorEstado,
   reportePorProfesional,
+  listOrdenesPorProfesional,
 } from "../persistence/ordenMedicaRepo";
 import {
   buscarPacientePorDocumentoTutor,
@@ -400,11 +401,28 @@ async function renderOrdenCard(o: OrdenMedicaActualRow): Promise<string> {
     raw.Diagnostico && raw.Diagnostico.trim() && raw.Diagnostico !== "-"
       ? `<p><strong>Diagnóstico:</strong> ${escapeHtml(raw.Diagnostico)}</p>`
       : "";
+  // Se muestran en un <dialog> (modal nativo del navegador, sin JS de
+  // terceros) en vez de siempre visibles en la tarjeta: son bloques de
+  // HTML que pueden ser largos (informes, listas de adjuntos) y con
+  // varias órdenes en pantalla ensuciaban la ficha.
+  const dialogId = `detalle-${o.id_orden_medica}`;
   const evoSolicitud = raw.EvoOrdenMedica
     ? `<div class="field-label">Solicitud médica</div><div class="evo-block">${raw.EvoOrdenMedica}</div>`
     : "";
   const evoResultados = raw.EvoOrdenMedicaResultados
     ? `<div class="field-label">Resultados</div><div class="evo-block">${raw.EvoOrdenMedicaResultados}</div>`
+    : "";
+  const tieneDetalle = Boolean(evoSolicitud || evoResultados);
+  const botonDetalle = tieneDetalle
+    ? `<button type="button" class="btn secondary" style="margin-top:10px;" onclick="document.getElementById('${dialogId}').showModal()">Ver solicitud y resultado</button>
+       <dialog id="${dialogId}" class="detalle-dialog">
+         <div class="dialog-inner">
+           <form method="dialog"><button type="submit" class="dialog-close" aria-label="Cerrar">&times;</button></form>
+           <h3 style="margin-top:0;">Orden #${o.id_orden_medica}</h3>
+           ${evoSolicitud}
+           ${evoResultados}
+         </div>
+       </dialog>`
     : "";
 
   const adjuntosHtml = partes.documentRefs
@@ -453,8 +471,7 @@ async function renderOrdenCard(o: OrdenMedicaActualRow): Promise<string> {
       </p>
       ${diagnostico}
       ${itemsHtml ? `<table><thead><tr><th>Práctica</th><th>Estado</th><th>Resultado</th></tr></thead><tbody>${itemsHtml}</tbody></table>` : ""}
-      ${evoSolicitud}
-      ${evoResultados}
+      ${botonDetalle}
       ${adjuntosHtml ? `<div style="margin-top:10px;">${adjuntosHtml}</div>` : ""}
       ${historialHtml}
     </div>
@@ -467,6 +484,16 @@ async function renderOrdenCard(o: OrdenMedicaActualRow): Promise<string> {
 backOfficeRouter.get("/back-office/reportes", async (req, res) => {
   const desde = req.query.desde ? String(req.query.desde) : undefined;
   const hasta = req.query.hasta ? String(req.query.hasta) : undefined;
+
+  // Link "Ver" de cada fila del reporte por profesional -- medico_nombre
+  // puede ser null (fila "(sin solicitante)"), se manda como "" y del otro
+  // lado (/reportes/profesional) una cadena vacía se interpreta como null.
+  const linkVerProfesional = (nombre: string | null) => {
+    const params = new URLSearchParams({ medico: nombre ?? "" });
+    if (desde) params.set("desde", desde);
+    if (hasta) params.set("hasta", hasta);
+    return `/back-office/reportes/profesional?${params.toString()}`;
+  };
 
   let bodyHtml = "";
   try {
@@ -493,12 +520,12 @@ backOfficeRouter.get("/back-office/reportes", async (req, res) => {
       <div class="card">
         <h3>Por profesional solicitante</h3>
         <table>
-          <thead><tr><th>Profesional</th><th>Órdenes</th><th>Realizadas</th></tr></thead>
+          <thead><tr><th>Profesional</th><th>Órdenes</th><th>Realizadas</th><th></th></tr></thead>
           <tbody>
             ${porProfesional
               .map(
                 (r: any) =>
-                  `<tr><td>${escapeHtml(r.medico_nombre)}</td><td>${r.cantidad_ordenes}</td><td>${r.cantidad_realizadas}</td></tr>`
+                  `<tr><td>${escapeHtml(r.medico_nombre ?? "(sin solicitante)")}</td><td>${r.cantidad_ordenes}</td><td>${r.cantidad_realizadas}</td><td><a class="btn secondary" href="${linkVerProfesional(r.medico_nombre)}">Ver</a></td></tr>`
               )
               .join("")}
           </tbody>
@@ -525,6 +552,78 @@ backOfficeRouter.get("/back-office/reportes", async (req, res) => {
           </div>
           <button type="submit">Filtrar</button>
         </form>
+      </div>
+      ${bodyHtml}
+      `,
+      "/back-office/reportes"
+    )
+  );
+});
+
+/**
+ * Detalle ("Ver") de las órdenes de un profesional solicitante, disparado
+ * desde la fila del reporte "Por profesional solicitante". Solo
+ * encabezado por orden (tutor, mascota, fecha, servicio, estado) -- para
+ * el detalle completo de una orden puntual hay que ir a la ficha de
+ * estudios de esa mascota.
+ */
+backOfficeRouter.get("/back-office/reportes/profesional", async (req, res) => {
+  const medicoParam = req.query.medico;
+  // "" (o ausente) == sin solicitante -- ver nota en listOrdenesPorProfesional.
+  const medico =
+    medicoParam !== undefined && String(medicoParam) !== ""
+      ? String(medicoParam)
+      : null;
+  const desde = req.query.desde ? String(req.query.desde) : undefined;
+  const hasta = req.query.hasta ? String(req.query.hasta) : undefined;
+
+  const volverParams = new URLSearchParams();
+  if (desde) volverParams.set("desde", desde);
+  if (hasta) volverParams.set("hasta", hasta);
+  const volverHref = `/back-office/reportes${volverParams.toString() ? `?${volverParams.toString()}` : ""}`;
+
+  let bodyHtml = "";
+  try {
+    const ordenes = await listOrdenesPorProfesional(medico, desde, hasta);
+    bodyHtml =
+      ordenes.length === 0
+        ? `<div class="card"><p class="muted">No hay órdenes para este profesional en el rango elegido.</p></div>`
+        : `
+      <div class="card">
+        <table>
+          <thead><tr><th>Tutor</th><th>Mascota</th><th>Fecha</th><th>Servicio</th><th>Estado</th></tr></thead>
+          <tbody>
+            ${ordenes
+              .map(
+                (o) => `<tr>
+                  <td>${escapeHtml(o.tutor_nombre ?? "-")}${o.tutor_documento ? ` <span class="muted">(${escapeHtml(o.tutor_documento)})</span>` : ""}</td>
+                  <td>${escapeHtml(o.paciente_nombre ?? "-")}</td>
+                  <td>${escapeHtml(o.fecha_orden ? new Date(o.fecha_orden).toLocaleString("es-AR") : "-")}</td>
+                  <td>${escapeHtml(o.servicio_nombre ?? "-")}</td>
+                  <td>${estadoBadge(o.id_estado, o.estado_nombre)}</td>
+                </tr>`
+              )
+              .join("")}
+          </tbody>
+        </table>
+      </div>
+    `;
+  } catch (err) {
+    bodyHtml = `<div class="error">Error obteniendo las órdenes: ${escapeHtml(
+      err instanceof Error ? err.message : String(err)
+    )}</div>`;
+  }
+
+  res.send(
+    renderPage(
+      "Órdenes por profesional",
+      `
+      <div class="card">
+        <h2>${escapeHtml(medico ?? "(sin solicitante)")}</h2>
+        <p class="muted">
+          ${desde || hasta ? `Rango: ${escapeHtml(desde ?? "(sin desde)")} a ${escapeHtml(hasta ?? desde ?? "")}` : "Todas las fechas"}
+          · <a href="${volverHref}">volver a reportes</a>
+        </p>
       </div>
       ${bodyHtml}
       `,

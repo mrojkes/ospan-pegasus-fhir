@@ -88,6 +88,16 @@ export function renderPage(title: string, bodyHtml: string, activePath = ""): st
   .evo-block p:last-child { margin-bottom: 0; }
   .paciente-header h2 { margin-bottom: 4px; }
   .paciente-header .especie { font-weight: 400; font-size: 13px; color: var(--muted); }
+  dialog.detalle-dialog {
+    border: none; border-radius: 10px; padding: 0; max-width: 640px; width: 90vw;
+    max-height: 80vh; box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  }
+  dialog.detalle-dialog::backdrop { background: rgba(20,33,61,0.5); }
+  dialog.detalle-dialog .dialog-inner { padding: 20px; overflow-y: auto; max-height: 80vh; }
+  dialog.detalle-dialog .dialog-close {
+    background: none; border: none; color: var(--muted); font-size: 20px; line-height: 1;
+    cursor: pointer; float: right; margin: 0; padding: 4px;
+  }
 </style>
 </head>
 <body>
@@ -101,6 +111,16 @@ export function renderPage(title: string, bodyHtml: string, activePath = ""): st
 <main>
 ${bodyHtml}
 </main>
+<script>
+  // Cerrar cualquier <dialog> haciendo click afuera del contenido (en el
+  // "backdrop"): al clickear ahí, el target del click es el propio
+  // elemento <dialog>, nunca su contenido interno.
+  document.addEventListener("click", function (e) {
+    if (e.target instanceof HTMLElement && e.target.tagName === "DIALOG") {
+      e.target.close();
+    }
+  });
+</script>
 </body>
 </html>`;
 }

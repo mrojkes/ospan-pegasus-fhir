@@ -197,7 +197,7 @@ export async function reportePorEstado(desde?: string, hasta?: string) {
 
 export async function reportePorProfesional(desde?: string, hasta?: string) {
   const { rows } = await getPool().query(
-    `select coalesce(medico_nombre, '(sin solicitante)') as medico_nombre,
+    `select medico_nombre,
             count(*)::int as cantidad_ordenes,
             count(*) filter (where id_estado in (3, 5))::int as cantidad_realizadas
      from fhir_repo.orden_medica_actual
@@ -206,6 +206,45 @@ export async function reportePorProfesional(desde?: string, hasta?: string) {
      group by medico_nombre
      order by cantidad_ordenes desc`,
     [desde ?? null, hasta ?? null]
+  );
+  return rows;
+}
+
+export interface OrdenResumenPorProfesional {
+  id_orden_medica: number;
+  fecha_orden: string | null;
+  paciente_nombre: string | null;
+  tutor_nombre: string | null;
+  tutor_documento: string | null;
+  servicio_nombre: string | null;
+  id_estado: number;
+  estado_nombre: string;
+}
+
+/**
+ * Detalle (2.6, "ver") de las órdenes de un profesional solicitante en
+ * particular -- lo que dispara el link "Ver" del reporte "Por profesional
+ * solicitante". `medicoNombre = null` trae las órdenes SIN solicitante
+ * (fila "(sin solicitante)" del reporte); `IS NOT DISTINCT FROM` en vez de
+ * `=` es lo que hace que ese caso funcione (NULL = NULL nunca es true en
+ * SQL comun). `tutor_nombre` no es una columna propia -- Pegasus no la
+ * persiste aparte, se lee del `raw_pegasus` guardado con cada orden.
+ */
+export async function listOrdenesPorProfesional(
+  medicoNombre: string | null,
+  desde?: string,
+  hasta?: string
+): Promise<OrdenResumenPorProfesional[]> {
+  const { rows } = await getPool().query(
+    `select id_orden_medica, fecha_orden, paciente_nombre, tutor_documento,
+            raw_pegasus->>'TutorNombre' as tutor_nombre,
+            servicio_nombre, id_estado, estado_nombre
+     from fhir_repo.orden_medica_actual
+     where medico_nombre is not distinct from $1
+       and ($2::date is null or fecha_orden >= $2::date)
+       and ($3::date is null or fecha_orden < ($3::date + interval '1 day'))
+     order by fecha_orden desc nulls last`,
+    [medicoNombre, desde ?? null, hasta ?? null]
   );
   return rows;
 }

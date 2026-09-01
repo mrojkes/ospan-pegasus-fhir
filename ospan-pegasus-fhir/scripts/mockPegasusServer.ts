@@ -53,7 +53,7 @@ const ordenBase = {
       Notas: null,
       NumValor: null,
       TextValor: null,
-      Valor: null,
+      Valor: "&nbsp;", // como llega de Panda cuando no hay valor cargado -- ver observation.ts
       Unidad: null,
       ValoresReferencia: null,
       IdProfesionalRealiza: 2380,
