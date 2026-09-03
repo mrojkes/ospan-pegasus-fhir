@@ -15,7 +15,7 @@ import {
   buscarPacientesPorNombreMascota,
   PacienteEncontrado,
 } from "../services/patientSearch";
-import { obtenerEstudiosPaciente } from "../services/estudios";
+import { obtenerEstudiosPaciente, obtenerOrdenPorId } from "../services/estudios";
 import type { OrdenMedicaActualRow } from "../persistence/ordenMedicaRepo";
 
 export const backOfficeRouter = Router();
@@ -343,6 +343,46 @@ backOfficeRouter.get("/back-office/estudios", async (req, res) => {
 });
 
 /**
+ * Detalle de UNA orden puntual por su `IdOrdenMedica` (2026-09-03) -- el
+ * link "Ver orden" del drill-down de reportes cae acá en vez de mandar a
+ * toda la ficha de estudios de la mascota. Local-first + fallback "en
+ * vivo" igual que /back-office/estudios (ver obtenerOrdenPorId); reusa
+ * renderPacienteHeader/renderOrdenCard para que se vea igual que dentro de
+ * la ficha de estudios.
+ */
+backOfficeRouter.get("/back-office/ordenes/:id", async (req, res) => {
+  const id = req.params.id;
+  const fresh = req.query.fresh === "1";
+
+  let bodyHtml = "";
+  try {
+    const { orden, fuente } = await obtenerOrdenPorId(id, { fresh });
+
+    if (!orden) {
+      bodyHtml = `<div class="card"><p class="muted">No se encontró la orden #${escapeHtml(id)} (ni localmente ni en Pegasus).</p></div>`;
+    } else {
+      const refreshHref = `/back-office/ordenes/${encodeURIComponent(id)}?fresh=1`;
+      bodyHtml = `
+        ${renderPacienteHeader(orden)}
+        <p class="muted">
+          Fuente: ${fuente === "local" ? "datos locales" : "recién sincronizado desde Pegasus"}
+          · <a href="${refreshHref}">actualizar desde Pegasus</a>
+        </p>
+        ${await renderOrdenCard(orden)}
+      `;
+    }
+  } catch (err) {
+    bodyHtml = `<div class="error">Error buscando la orden: ${escapeHtml(
+      err instanceof Error ? err.message : String(err)
+    )}</div>`;
+  }
+
+  res.send(
+    renderPage(`Orden #${id}`, bodyHtml, "/back-office/reportes")
+  );
+});
+
+/**
  * Encabezado de la ficha de estudios: datos de la mascota y del tutor,
  * tomados del `raw_pegasus` de la primera orden (todas las órdenes de una
  * misma búsqueda son de la misma mascota, así que alcanza con la primera).
@@ -591,18 +631,30 @@ backOfficeRouter.get("/back-office/reportes/profesional", async (req, res) => {
         : `
       <div class="card">
         <table>
-          <thead><tr><th>Tutor</th><th>Mascota</th><th>Fecha</th><th>Servicio</th><th>Estado</th></tr></thead>
+          <thead><tr><th>Tutor</th><th>Mascota</th><th>Fecha</th><th>Servicio</th><th>Estado</th><th></th></tr></thead>
           <tbody>
             ${ordenes
-              .map(
-                (o) => `<tr>
+              .map((o) => {
+                // "Ver paciente" -- GET .../pacientes/{idPaciente}/ordenes
+                // (o id_hub si la mascota es de OSPAN, mismo criterio que
+                // la búsqueda de paciente); "Ver orden" -- GET
+                // .../ordenesmedicas/{id}, va directo a esta orden.
+                const paramsPaciente = new URLSearchParams();
+                if (o.id_hub) paramsPaciente.set("id_hub", o.id_hub);
+                else if (o.id_paciente) paramsPaciente.set("id_paciente", String(o.id_paciente));
+                const linkPaciente = paramsPaciente.toString()
+                  ? `<a class="btn secondary" href="/back-office/estudios?${paramsPaciente.toString()}">Ver paciente</a>`
+                  : "";
+                const linkOrden = `<a class="btn secondary" href="/back-office/ordenes/${o.id_orden_medica}">Ver orden</a>`;
+                return `<tr>
                   <td>${escapeHtml(o.tutor_nombre ?? "-")}${o.tutor_documento ? ` <span class="muted">(${escapeHtml(o.tutor_documento)})</span>` : ""}</td>
                   <td>${escapeHtml(o.paciente_nombre ?? "-")}</td>
                   <td>${escapeHtml(o.fecha_orden ? new Date(o.fecha_orden).toLocaleString("es-AR") : "-")}</td>
                   <td>${escapeHtml(o.servicio_nombre ?? "-")}</td>
                   <td>${estadoBadge(o.id_estado, o.estado_nombre)}</td>
-                </tr>`
-              )
+                  <td style="white-space:nowrap;">${linkPaciente} ${linkOrden}</td>
+                </tr>`;
+              })
               .join("")}
           </tbody>
         </table>

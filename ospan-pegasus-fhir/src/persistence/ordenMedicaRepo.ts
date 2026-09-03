@@ -237,6 +237,22 @@ export const listActualPorIdPaciente = (idPaciente: number | string) =>
 export const listActualPorTutorDocumento = (documento: string) =>
   listActual("tutor_documento = $1", [documento]);
 
+/**
+ * Una orden puntual por su `IdOrdenMedica`, para el link "Ver orden" del
+ * drill-down de reportes (2026-09-03) -- va directo a esa orden en vez de
+ * tener que abrir toda la ficha de estudios de la mascota y buscarla ahí.
+ * `null` si no está sincronizada localmente todavía.
+ */
+export async function actualPorId(
+  idOrdenMedica: number | string
+): Promise<OrdenMedicaActualRow | null> {
+  const rows = await listActual(
+    "source_system = $1 and id_orden_medica = $2",
+    [SOURCE_SYSTEM, idOrdenMedica]
+  );
+  return rows[0] ?? null;
+}
+
 /** Historial completo (todas las versiones) de una orden puntual. */
 export async function listHistorialPorOrden(idOrdenMedica: number | string) {
   const { rows } = await getPool().query(
@@ -305,6 +321,8 @@ export async function reportePorProfesional(desde?: string, hasta?: string) {
 export interface OrdenResumenPorProfesional {
   id_orden_medica: number;
   fecha_orden: string | null;
+  id_paciente: number | null;
+  id_hub: string | null;
   paciente_nombre: string | null;
   tutor_nombre: string | null;
   tutor_documento: string | null;
@@ -321,6 +339,9 @@ export interface OrdenResumenPorProfesional {
  * `=` es lo que hace que ese caso funcione (NULL = NULL nunca es true en
  * SQL comun). `tutor_nombre` no es una columna propia -- Pegasus no la
  * persiste aparte, se lee del `raw_pegasus` guardado con cada orden.
+ * `id_paciente`/`id_hub` van para los links "Ver paciente" (GET
+ * .../pacientes/{idPaciente}/ordenes) y "Ver orden" (GET
+ * .../ordenesmedicas/{id}) del back office -- ver back-office/ordenes/:id.
  */
 export async function listOrdenesPorProfesional(
   medicoNombre: string | null,
@@ -328,7 +349,8 @@ export async function listOrdenesPorProfesional(
   hasta?: string
 ): Promise<OrdenResumenPorProfesional[]> {
   const { rows } = await getPool().query(
-    `select id_orden_medica, fecha_orden, paciente_nombre, tutor_documento,
+    `select id_orden_medica, fecha_orden, id_paciente, id_hub,
+            paciente_nombre, tutor_documento,
             raw_pegasus->>'TutorNombre' as tutor_nombre,
             servicio_nombre, id_estado, estado_nombre
      from fhir_repo.orden_medica_actual

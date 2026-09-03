@@ -1,9 +1,12 @@
 import {
   fetchOrdenesMedicas,
   fetchOrdenesPorPaciente,
+  fetchOrdenMedicaById,
+  PegasusApiError,
 } from "../adapters/pegasus/pegasusClient";
 import { mapOrdenToBundle } from "../fhir/mappers/bundle";
 import {
+  actualPorId,
   listActualPorIdHub,
   listActualPorIdPaciente,
   listActualPorTutorDocumento,
@@ -103,4 +106,44 @@ export async function obtenerEstudiosPaciente(params: {
   }
 
   return { ordenes: [], fuente: "local", nuevasVersiones: 0 };
+}
+
+export interface OrdenResultado {
+  orden: OrdenMedicaActualRow | null;
+  fuente: "local" | "vivo";
+}
+
+/**
+ * Trae UNA orden puntual por su `IdOrdenMedica` (2026-09-03) -- el link
+ * "Ver orden" del drill-down de reportes, para no tener que abrir toda la
+ * ficha de estudios de la mascota y buscarla ahí adentro.
+ *
+ * Local-first igual que `obtenerEstudiosPaciente`: si ya está sincronizada
+ * y no se pide "fresh", se sirve de la base. Si no hay nada local (o se
+ * pide refrescar), va a Pegasus con `GET /api/ordenesmedicas/{id}` y
+ * persiste antes de devolver (2.4). Un 404 de Pegasus (orden inexistente,
+ * o fuera de alcance de `idHub` si se pasó) se traduce en `orden: null` en
+ * vez de propagar el error -- es una respuesta válida ("no está"), no una
+ * falla.
+ */
+export async function obtenerOrdenPorId(
+  idOrdenMedica: number | string,
+  opts?: { fresh?: boolean; idHub?: string }
+): Promise<OrdenResultado> {
+  if (!opts?.fresh) {
+    const local = await actualPorId(idOrdenMedica);
+    if (local) return { orden: local, fuente: "local" };
+  }
+
+  try {
+    const raw = await fetchOrdenMedicaById(idOrdenMedica, opts?.idHub);
+    const bundle = mapOrdenToBundle(raw);
+    await upsertVersionSiCambio(raw, bundle);
+    return { orden: await actualPorId(idOrdenMedica), fuente: "vivo" };
+  } catch (err) {
+    if (err instanceof PegasusApiError && err.status === 404) {
+      return { orden: null, fuente: "vivo" };
+    }
+    throw err;
+  }
 }

@@ -219,7 +219,9 @@ distingue esos dos casos a propósito, así que este backend tampoco.
 | `/back-office/sync` (GET form, POST acción) | **2.1** | Sincroniza por fecha (`/porfecha`) y persiste versionado |
 | `/back-office/pacientes?documento=\|id_hub=\|nombre=` | **2.2** | Busca paciente cruzando padrón + Pegasus |
 | `/back-office/estudios?id_hub=\|id_paciente=\|tutor_documento=[&fresh=1]` | **2.3, 2.4, 2.5** | Ficha de estudios: local-first, o en vivo + persistir; adjuntos con link/preview; historial de versiones |
+| `/back-office/ordenes/:id[?fresh=1]` | **2.3, 2.4** | Una orden puntual por `IdOrdenMedica` (local-first, o en vivo vía `GET /ordenesmedicas/{id}` + persistir) |
 | `/back-office/reportes?desde=&hasta=` | **2.6** | Órdenes por profesional y por estado |
+| `/back-office/reportes/profesional?medico=&desde=&hasta=` | **2.6** | Detalle de las órdenes de un profesional, con links "Ver paciente" (`/back-office/estudios`, por `id_hub` o `id_paciente` según tenga) y "Ver orden" (`/back-office/ordenes/:id`) |
 
 ## Persistencia versionada por estado (2.4)
 
