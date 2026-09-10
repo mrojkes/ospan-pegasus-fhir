@@ -1,0 +1,187 @@
+/* =========================================================
+   MIS RESULTADOS — estilos de las dos pantallas nuevas
+   (lista de órdenes por mascota + detalle de una orden).
+   Solo agrega; reusa tokens y componentes de styles.css.
+   ========================================================= */
+
+/* ---- selector de mascota (chips horizontales) ---- */
+.pet-selector {
+  display: flex;
+  gap: var(--space-2);
+  overflow-x: auto;
+  padding-bottom: var(--space-3);
+  margin-bottom: var(--space-3);
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.pet-selector::-webkit-scrollbar { display: none; }
+
+.pet-chip {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px 6px 6px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.pet-chip.is-active {
+  border-color: var(--brand-primary-dark);
+  background: var(--brand-primary-dark);
+  color: #fff;
+}
+.pet-chip-avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--color-border);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+}
+.pet-chip-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+/* ---- filtros ---- */
+.filter-chips {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.filter-chips::-webkit-scrollbar { display: none; }
+.filter-chip {
+  flex: 0 0 auto;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-muted);
+  font: inherit; font-size: 13px; font-weight: 600;
+  cursor: pointer;
+}
+.filter-chip.is-active {
+  background: rgba(var(--brand-primary-rgb), 0.18);
+  border-color: var(--brand-primary);
+  color: var(--brand-primary-dark);
+}
+
+/* ---- ítem de orden en la lista ---- */
+.orden-item {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  position: relative;
+  padding-right: 36px;
+}
+.orden-item .entity-chevron {
+  position: absolute; right: 14px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+}
+.orden-item-badges {
+  display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px;
+}
+.mini-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--color-border);
+  color: var(--color-text-muted);
+}
+.mini-tag svg { width: 12px; height: 12px; }
+
+/* estados de Pegasus */
+.status-chip--realizada { background: var(--color-status-open-bg); color: var(--color-status-open-fg); }
+.status-chip--pendiente { background: var(--color-status-pending-bg); color: var(--color-status-pending-fg); }
+.status-chip--informe-pendiente { background: #eff6ff; color: #1d4ed8; }
+.status-chip--cancelada { background: #fef2f2; color: #b91c1c; }
+.status-chip--otro { background: var(--color-border); color: var(--color-text-muted); }
+
+/* ---- detalle ---- */
+.orden-hero {
+  background: var(--brand-primary-dark);
+  color: #fff;
+  border-radius: var(--afil-radius-md);
+  padding: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+.orden-hero-top {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-3);
+}
+.orden-hero-servicio { font-size: 17px; font-weight: 700; margin: 0; line-height: 1.3; }
+.orden-hero-meta { font-size: 13px; opacity: .85; margin: var(--space-2) 0 0; }
+.orden-hero .status-chip { flex: 0 0 auto; }
+
+.informe-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--afil-radius-md);
+  padding: var(--space-4);
+  margin-bottom: var(--space-6);
+  font-size: 14px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+.informe-card--muted { color: var(--color-text-muted); }
+.informe-card h4 { font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--color-text-muted); margin: 0 0 var(--space-2); }
+.informe-card p { margin: 0 0 var(--space-2); }
+.informe-card p:last-child { margin-bottom: 0; }
+.informe-card ul { padding-left: 18px; margin: 0 0 var(--space-2); }
+.informe-card img { max-width: 100%; height: auto; border-radius: 8px; }
+.informe-card table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.informe-card td, .informe-card th { padding: 4px 6px; border-bottom: 1px solid var(--color-border); text-align: left; }
+.informe-card .empty-state { padding: var(--space-2) 0; }
+
+.item-row { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; padding: 10px 0; border-bottom: 1px solid var(--color-border); }
+.item-row:last-child { border-bottom: 0; }
+.item-nombre { font-size: 14px; font-weight: 600; }
+.item-valor { font-size: 14px; font-weight: 700; text-align: right; color: var(--brand-primary-dark); }
+.item-valor.is-empty { color: var(--color-text-muted); font-weight: 500; font-style: italic; }
+.item-ref { grid-column: 1 / -1; font-size: 12px; color: var(--color-text-muted); }
+
+.adjunto-item {
+  display: flex; align-items: center; gap: var(--space-3);
+  text-decoration: none; color: inherit;
+  cursor: pointer; border: 0; width: 100%; text-align: left; font: inherit;
+}
+.adjunto-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: inline-flex; align-items: center; justify-content: center;
+  flex: 0 0 auto;
+}
+.adjunto-icon--pdf { background: #fef2f2; color: #b91c1c; }
+.adjunto-icon--img { background: #eff6ff; color: #1d4ed8; }
+.adjunto-icon--file { background: var(--color-border); color: var(--color-text-muted); }
+.adjunto-body { flex: 1; min-width: 0; }
+.adjunto-nombre { font-size: 14px; font-weight: 600; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.adjunto-tipo { font-size: 12px; color: var(--color-text-muted); margin: 0; }
+
+/* visor */
+.modal-panel--viewer { max-height: 92vh; display: flex; flex-direction: column; }
+.viewer-body {
+  flex: 1; min-height: 240px;
+  background: var(--color-bg);
+  border-radius: 12px;
+  overflow: auto;
+  display: flex; align-items: center; justify-content: center;
+}
+.viewer-body img { max-width: 100%; max-height: 70vh; border-radius: 8px; }
+.viewer-body iframe { width: 100%; height: 70vh; border: 0; border-radius: 8px; background: #fff; }
+.viewer-body .empty-state { padding: var(--space-6); }
+
+/* skeleton */
+.skeleton-line {
+  height: 14px; border-radius: 6px;
+  background: linear-gradient(90deg, var(--color-border) 25%, #f1f5f9 50%, var(--color-border) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+  margin-bottom: 8px;
+}
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }

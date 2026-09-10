@@ -1,0 +1,22 @@
+{
+  "name": "OSPAN — Portal del Afiliado",
+  "short_name": "OSPAN",
+  "description": "Autogestión de la cobertura veterinaria de tus mascotas: credencial digital, token de atención, resultados de estudios y red de prestadores.",
+  "id": "/app/",
+  "start_url": "/app/afil-home.html",
+  "scope": "/app/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f8fafc",
+  "theme_color": "#001753",
+  "lang": "es-AR",
+  "icons": [
+    { "src": "assets/img/icon-favicon.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/img/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "assets/img/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Credencial digital", "url": "/app/afil-credencial.html", "icons": [{ "src": "assets/img/icon-favicon.png", "sizes": "192x192" }] },
+    { "name": "Mis Resultados", "url": "/app/afil-resultados.html", "icons": [{ "src": "assets/img/icon-favicon.png", "sizes": "192x192" }] }
+  ]
+}
