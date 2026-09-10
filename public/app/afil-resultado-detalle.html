@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Detalle del estudio</title>
+<link rel="icon" href="assets/img/icon-favicon.png" />
+<link rel="manifest" href="manifest.webmanifest" />
+<meta name="theme-color" content="#001753" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="OSPAN" />
+<link rel="apple-touch-icon" href="assets/img/icon-apple-touch-favicon.png" />
+
+<link rel="stylesheet" href="assets/css/variables.css" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <link rel="stylesheet" href="assets/css/utilities.css" />
+  <link rel="stylesheet" href="assets/css/resultados.css" />
+</head>
+<body>
+
+  <header class="page-header">
+    <a class="back-link" href="afil-resultados.html" id="back-link" aria-label="Volver">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <h1 class="page-title">Detalle del estudio</h1>
+  </header>
+
+  <main class="page-body" id="detalle-main">
+    <p class="empty-state" id="detalle-loading">Cargando…</p>
+
+    <div id="detalle-content" class="hidden">
+
+      <div class="orden-hero">
+        <div class="orden-hero-top">
+          <p class="orden-hero-servicio" id="orden-servicio">—</p>
+          <span class="status-chip" id="orden-estado">—</span>
+        </div>
+        <p class="orden-hero-meta" id="orden-meta">—</p>
+      </div>
+
+      <p class="menu-group-title">Datos de la orden</p>
+      <div class="field-card mb-6">
+        <div class="field-row">
+          <span class="field-label">Mascota</span>
+          <span class="field-value" id="orden-mascota">—</span>
+        </div>
+        <div class="field-row">
+          <span class="field-label">Fecha</span>
+          <span class="field-value" id="orden-fecha">—</span>
+        </div>
+        <div class="field-row">
+          <span class="field-label">Profesional</span>
+          <span class="field-value" id="orden-profesional">—</span>
+        </div>
+        <div class="field-row">
+          <span class="field-label">Veterinaria</span>
+          <span class="field-value" id="orden-sucursal">—</span>
+        </div>
+        <div class="field-row field-row--align-start">
+          <span class="field-label">Diagnóstico</span>
+          <span class="field-value" id="orden-diagnostico">—</span>
+        </div>
+      </div>
+
+      <div id="seccion-resultado">
+        <p class="menu-group-title">Resultado / informe</p>
+        <div class="informe-card" id="orden-resultado"></div>
+      </div>
+
+      <div id="seccion-items" class="hidden">
+        <p class="menu-group-title">Valores</p>
+        <div class="field-card mb-6" id="orden-items"></div>
+      </div>
+
+      <div id="seccion-adjuntos" class="hidden">
+        <p class="menu-group-title">Archivos adjuntos</p>
+        <div class="record-list mb-6" id="orden-adjuntos"></div>
+      </div>
+
+      <div id="seccion-solicitud">
+        <p class="menu-group-title">Lo que pidió el profesional</p>
+        <div class="informe-card informe-card--muted" id="orden-solicitud"></div>
+      </div>
+
+      <p class="form-security-note mt-6" id="orden-origen"></p>
+    </div>
+  </main>
+
+  <!-- Visor de adjuntos -->
+  <div class="modal-overlay hidden" id="modal-adjunto">
+    <div class="modal-panel modal-panel--viewer">
+      <div class="modal-header-row">
+        <p class="modal-title" id="adjunto-titulo">Adjunto</p>
+        <button class="modal-close-button" type="button" data-close-modal="modal-adjunto" aria-label="Cerrar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="viewer-body" id="adjunto-body"></div>
+      <a class="cta-button cta-button--outline cta-button--icon mt-3" id="adjunto-abrir" href="#" target="_blank" rel="noopener">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Abrir / descargar
+      </a>
+    </div>
+  </div>
+
+  <script src="assets/js/mock-data.js"></script>
+  <script src="assets/js/api-client.js"></script>
+  <script src="assets/js/modal-utils.js"></script>
+  <script src="assets/js/resultados-utils.js"></script>
+  <script src="assets/js/screen-resultado-detalle.js"></script>
+  <script src="assets/js/pwa.js"></script>
+</body>
+</html>
