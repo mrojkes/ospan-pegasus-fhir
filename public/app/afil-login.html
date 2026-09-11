@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Ingresar</title>
+<link rel="icon" href="assets/img/icon-favicon.png" />
+<link rel="manifest" href="manifest.webmanifest" />
+<meta name="theme-color" content="#001753" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="OSPAN" />
+<link rel="apple-touch-icon" href="assets/img/icon-apple-touch-favicon.png" />
+
+<link rel="stylesheet" href="assets/css/variables.css" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <link rel="stylesheet" href="assets/css/utilities.css" />
+  <link rel="stylesheet" href="assets/css/resultados.css" />
+</head>
+<body>
+  <div class="auth-screen">
+
+    <div class="auth-main">
+      <header class="auth-header">
+        <img class="auth-logo" id="auth-logo" src="" alt="" />
+        <p class="auth-subtitle" id="auth-subtitle">—</p>
+      </header>
+
+      <form class="auth-form-card" id="login-form">
+        <div class="form-group" id="step-dni">
+          <label class="form-label" for="dni-input" id="form-label">Ingresá tu DNI</label>
+          <div class="form-input-wrap">
+            <svg class="form-input-icon form-input-icon--left" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 10h2"/><path d="M16 14h2"/><path d="M6.17 15a3 3 0 0 1 5.66 0"/><circle cx="9" cy="11" r="2"/><rect x="2" y="5" width="20" height="14" rx="2"/></svg>
+            <input class="form-input form-input--icon-left" type="text" inputmode="numeric" id="dni-input" placeholder="" />
+          </div>
+        </div>
+
+        <div class="form-group hidden" id="step-canal">
+          <label class="form-label">¿Cómo querés recibir el código?</label>
+          <p class="form-security-note mt-0 mb-2">Elegí uno de los medios que tenemos registrados en tu cuenta.</p>
+          <div class="menu-card" id="canal-list"></div>
+          <p class="form-security-note"><a href="#" id="canal-volver">Cambiar DNI</a></p>
+        </div>
+
+        <div class="form-group hidden" id="step-codigo">
+          <label class="form-label" for="codigo-input">Ingresá el código</label>
+          <p class="form-security-note mt-0 mb-2" id="codigo-hint">—</p>
+          <div class="form-input-wrap">
+            <svg class="form-input-icon form-input-icon--left" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input class="form-input form-input--icon-left" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" id="codigo-input" placeholder="6 dígitos" />
+          </div>
+          <p class="form-security-note text-amber hidden" id="codigo-aviso"></p>
+          <p class="form-security-note text-teal hidden" id="codigo-dev"></p>
+          <p class="form-security-note">
+            <a href="#" id="codigo-reenviar">Reenviar código</a> &middot;
+            <a href="#" id="codigo-otro-medio" class="hidden">Probar por otro medio</a> &middot;
+            <a href="#" id="codigo-volver">Cambiar DNI</a>
+          </p>
+        </div>
+
+        <p class="form-security-note text-red hidden" id="login-error"></p>
+        <button class="cta-button cta-button--primary" type="submit" id="login-cta" disabled>Ingresar</button>
+        <p class="form-security-note" id="security-note">—</p>
+      </form>
+    </div>
+
+    <div class="contact-footer">
+      <div class="contact-row">
+        <span class="contact-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </span>
+        <span id="contact-phone-row">—</span>
+      </div>
+      <div class="contact-row">
+        <span class="contact-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        </span>
+        <span id="contact-hours-row">—</span>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="assets/js/mock-data.js"></script>
+  <script src="assets/js/api-client.js"></script>
+  <script src="assets/js/screen-login.js"></script>
+  <script src="assets/js/pwa.js"></script>
+</body>
+</html>
