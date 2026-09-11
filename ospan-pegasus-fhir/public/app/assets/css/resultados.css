@@ -1,7 +1,9 @@
 /* =========================================================
-   MIS RESULTADOS — estilos de las dos pantallas nuevas
-   (lista de órdenes por mascota + detalle de una orden).
-   Solo agrega; reusa tokens y componentes de styles.css.
+   ESTILOS DE LAS PANTALLAS AGREGADAS AL PROTOTIPO
+   - Mis Resultados: lista de órdenes por mascota y detalle.
+   - Login: paso de elección del medio para recibir el código.
+   Solo agrega; reusa tokens y componentes de styles.css, que
+   queda intacto.
    ========================================================= */
 
 /* ---- selector de mascota (chips horizontales) ---- */
@@ -185,3 +187,22 @@
   margin-bottom: 8px;
 }
 @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+/* =========================================================
+   LOGIN — selección del medio para recibir el código
+   Reusa .menu-card / .menu-item; solo agrega la línea de dos
+   renglones (etiqueta + destino enmascarado) dentro del item.
+   ========================================================= */
+#canal-list .menu-item { width: 100%; text-align: left; }
+/* .menu-item-label es flex:1 con min-width:0, así que alcanza con que
+   los dos renglones sean bloques para que apilen y el mail largo corte
+   en vez de desbordar la tarjeta. */
+.canal-etiqueta { display: block; font-weight: 600; line-height: 1.3; }
+.canal-destino {
+  display: block;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+  overflow-wrap: anywhere;
+}

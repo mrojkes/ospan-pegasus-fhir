@@ -65,12 +65,25 @@ window.AppApi = (function () {
   }
 
   // ---------- auth OTP ----------
-  async function solicitarCodigo(dni) {
+  /**
+   * Paso 1 del login. Sin `canal`, el backend puede responder
+   * { requiereEleccion: true, canales: [...] } cuando el afiliado tiene
+   * más de un medio de contacto cargado en el padrón: ahí la app le
+   * muestra las opciones y vuelve a llamar con el elegido.
+   */
+  async function solicitarCodigo(dni, canal) {
     if (isMock()) {
       await delay(400);
-      return { ok: true, canal: "whatsapp", destinoEnmascarado: "+54 9 11 ****-5678", devCode: "123456" };
+      const canales = [
+        { tipo: "whatsapp", enmascarado: "+549 •• ••••-5678", etiqueta: "Por WhatsApp" },
+        { tipo: "email", enmascarado: "ma••••••••@example.com", etiqueta: "Por correo electrónico" },
+      ];
+      if (!canal) return { requiereEleccion: true, canales: canales };
+      const elegido = canales.find(function (c) { return c.tipo === canal; }) || canales[0];
+      return { ok: true, canal: elegido.tipo, destinoEnmascarado: elegido.enmascarado,
+               entregado: false, canales: canales, devCode: "123456" };
     }
-    return request("POST", "/auth/solicitar-codigo", { dni });
+    return request("POST", "/auth/solicitar-codigo", canal ? { dni: dni, canal: canal } : { dni: dni });
   }
 
   async function verificarCodigo(dni, codigo) {
