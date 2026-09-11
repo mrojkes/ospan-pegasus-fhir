@@ -1,13 +1,33 @@
 /* =========================================================
    AUTENTICACIÓN DE LA APP ASOCIADO
-   Login en dos pasos: DNI -> código de un solo uso (OTP) al
-   contacto que figura en el padrón -> token de sesión (JWT).
+   Login: DNI -> código de un solo uso (OTP) al contacto que
+   figura en el padrón -> token de sesión (JWT).
 
    Por qué OTP y no solo DNI: la app muestra datos clínicos de
    las mascotas (diagnósticos, informes de laboratorio). Con
    solo DNI, cualquiera que conozca el documento de un afiliado
    accede a su historia. El OTP prueba que además controla el
    teléfono/mail registrado.
+
+   ---------------------------------------------------------
+   CÓDIGO DE ACCESO INTERNO (etapa de pruebas)
+   ---------------------------------------------------------
+   Mientras WhatsApp/SMS no tengan proveedor y el mail salga
+   desde una casilla provisoria, hace falta poder entrar con
+   datos REALES del padrón sin mandarle nada a beneficiarios
+   de verdad. Para eso existe APP_CODIGO_MAESTRO.
+
+   Es una llave maestra: con ese código y un DNI del padrón se
+   entra a la cuenta de ese afiliado. Por eso:
+   - Vive SOLO en un Secret. Nunca en el repo (que es público).
+   - Si el Secret no está, la función no existe: no hay código
+     maestro por defecto ni valor de respaldo.
+   - No dispara ningún envío: se elige explícitamente en
+     pantalla ("Ingresar con código interno").
+   - Cada uso queda registrado en app_asociado.otp_challenge
+     con canal='interno' y un aviso en el log del servidor.
+
+   Para desactivarlo: se borra el Secret. Nada más.
    ========================================================= */
 
 import crypto from "crypto";
@@ -25,9 +45,31 @@ const OTP_MAX_INTENTOS = Number(process.env.APP_OTP_MAX_INTENTOS || 5);
 export const OTP_DEV_MODE =
   process.env.NODE_ENV !== "production" && process.env.APP_OTP_DEV !== "0";
 
+/**
+ * Código de acceso interno. Vacío = desactivado (comportamiento por
+ * defecto). Ver la nota del encabezado antes de activarlo.
+ */
+const CODIGO_MAESTRO = (process.env.APP_CODIGO_MAESTRO || "").trim();
+export const MAESTRO_ACTIVO = CODIGO_MAESTRO.length > 0;
+
+if (MAESTRO_ACTIVO) {
+  console.warn(
+    "[app-asociado] ATENCIÓN: código de acceso interno ACTIVO. " +
+      "Cualquiera que lo conozca puede entrar con el DNI de un afiliado. " +
+      "Borrá el Secret APP_CODIGO_MAESTRO antes de abrir la app a afiliados reales."
+  );
+}
+
 if (!JWT_SECRET && process.env.NODE_ENV === "production") {
   throw new Error("Falta APP_JWT_SECRET: la app no puede firmar sesiones.");
 }
+
+/** Opción que se agrega a la lista solo cuando el acceso interno está activo. */
+const CANAL_INTERNO = {
+  tipo: "interno" as const,
+  etiqueta: "Ingresar con código interno",
+  enmascarado: "Solo para pruebas — no envía nada",
+};
 
 export interface SesionAsociado {
   relatedPersonId: string;
@@ -76,7 +118,8 @@ function nombreCompleto(t: TutorRow): string {
  */
 export async function solicitarCodigo(req: Request, res: Response) {
   const dni = normalizarDni(req.body?.dni);
-  const canalPedido = String(req.body?.canal ?? "").trim() as TipoCanal | "";
+  // "interno" no es un canal de envío: es la opción de acceso de pruebas.
+  const canalPedido = String(req.body?.canal ?? "").trim() as TipoCanal | "interno" | "";
   if (dni.length < 6) return res.status(400).json({ error: "DNI inválido" });
 
   const tutores = await buscarTutoresPorDocumento(dni);
@@ -87,10 +130,21 @@ export async function solicitarCodigo(req: Request, res: Response) {
   const tutor = tutores.find((t) => canalesDisponibles(t).length > 0) ?? tutores[0];
   const canales = canalesDisponibles(tutor);
 
-  if (!canales.length) {
+  // Con el acceso interno activo se ofrece como una opción más, y NUNCA se
+  // manda nada solo: aunque el afiliado tenga un único canal, primero se
+  // pregunta. Así elegir no dispara un mail a una persona real por error.
+  const opciones = MAESTRO_ACTIVO ? [...canales.map(canalPublico), CANAL_INTERNO] : canales.map(canalPublico);
+
+  if (!opciones.length) {
     return res.status(409).json({
       error: "Tu cuenta no tiene un teléfono ni un email registrado. Contactanos para activarla.",
     });
+  }
+
+  if (canalPedido === "interno") {
+    if (!MAESTRO_ACTIVO) return res.status(400).json({ error: "Ese medio de contacto no está disponible" });
+    // No se genera ni se manda nada: el código lo sabe quien está probando.
+    return res.json({ ok: true, canal: "interno", sinEnvio: true, entregado: false, canales: opciones });
   }
 
   // Elección del canal.
@@ -99,8 +153,8 @@ export async function solicitarCodigo(req: Request, res: Response) {
     const elegido = canales.find((c) => c.tipo === canalPedido);
     if (!elegido) return res.status(400).json({ error: "Ese medio de contacto no está disponible" });
     canal = elegido;
-  } else if (canales.length > 1) {
-    return res.json({ requiereEleccion: true, canales: canales.map(canalPublico) });
+  } else if (opciones.length > 1) {
+    return res.json({ requiereEleccion: true, canales: opciones });
   } else {
     canal = canales[0];
   }
@@ -145,7 +199,7 @@ export async function solicitarCodigo(req: Request, res: Response) {
     // no ocurrió.
     entregado,
     // Otros canales, para el link "probar por otro medio".
-    canales: canales.map(canalPublico),
+    canales: opciones,
     ...(OTP_DEV_MODE ? { devCode: codigo } : {}),
   });
 }
@@ -153,8 +207,31 @@ export async function solicitarCodigo(req: Request, res: Response) {
 /** Paso 2: DNI + código -> token de sesión. */
 export async function verificarCodigo(req: Request, res: Response) {
   const dni = normalizarDni(req.body?.dni);
-  const codigo = String(req.body?.codigo ?? "").replace(/\D/g, "");
-  if (!dni || !codigo) return res.status(400).json({ error: "Faltan datos" });
+  // Sin normalizar: el código interno puede no ser solo numérico.
+  const codigoCrudo = String(req.body?.codigo ?? "").trim();
+  const codigo = codigoCrudo.replace(/\D/g, "");
+  if (!dni || !codigoCrudo) return res.status(400).json({ error: "Faltan datos" });
+
+  // --- Acceso interno (etapa de pruebas, ver nota del encabezado) ---
+  if (MAESTRO_ACTIVO && esCodigoMaestro(codigoCrudo)) {
+    const tutores = await buscarTutoresPorDocumento(dni);
+    if (!tutores.length) return res.status(404).json({ error: "No encontramos un afiliado con ese DNI" });
+    const tutor = tutores[0];
+
+    // Rastro de auditoría: queda igual que un OTP, con canal 'interno' y ya
+    // consumido, para poder saber después quién entró así y cuándo.
+    await getPool().query(
+      `insert into app_asociado.otp_challenge
+         (dni, related_person_id, codigo_hash, canal, destino, expira_en, consumido, ip)
+       values ($1, $2, $3, 'interno', 'acceso interno', now(), true, $4)`,
+      [dni, tutor.related_person_id, "-", req.ip]
+    );
+    console.warn(
+      `[app-asociado] ACCESO INTERNO usado — DNI ${dni} (${nombreCompleto(tutor)}), IP ${req.ip}`
+    );
+
+    return res.json({ ok: true, token: firmarSesion(tutor.related_person_id, dni, nombreCompleto(tutor)) });
+  }
 
   const { rows } = await getPool().query(
     `SELECT * FROM app_asociado.otp_challenge
@@ -186,12 +263,19 @@ export async function verificarCodigo(req: Request, res: Response) {
   const tutores = await buscarTutoresPorDocumento(dni);
   const tutor = tutores.find((t) => t.related_person_id === challenge.related_person_id) || tutores[0];
 
-  const token = jwt.sign(
-    { sub: challenge.related_person_id, dni, nombre: nombreCompleto(tutor) },
-    JWT_SECRET || "dev",
-    { expiresIn: JWT_TTL }
-  );
-  res.json({ ok: true, token });
+  res.json({ ok: true, token: firmarSesion(challenge.related_person_id, dni, nombreCompleto(tutor)) });
+}
+
+function firmarSesion(relatedPersonId: string, dni: string, nombre: string): string {
+  return jwt.sign({ sub: relatedPersonId, dni, nombre }, JWT_SECRET || "dev", { expiresIn: JWT_TTL });
+}
+
+/** Comparación de duración constante, para no filtrar el código por tiempos. */
+function esCodigoMaestro(codigo: string): boolean {
+  const a = Buffer.from(codigo);
+  const b = Buffer.from(CODIGO_MAESTRO);
+  if (a.length !== b.length) return false;
+  return crypto.timingSafeEqual(a, b);
 }
 
 /** Middleware: exige un JWT válido y deja la sesión en req.asociado. */

@@ -51,6 +51,7 @@ La app queda en `http://localhost:3000/app/` y la API en `/api/app/*`.
 | `APP_OTP_DEV` | `0` deja de devolver el código en la respuesta. | No |
 | `APP_TOKEN_TTL_MIN` | Validez del token de atención (default 15). | No |
 | `APP_CANAL_TELEFONO` | `sms` para que el canal de teléfono sea SMS en vez de WhatsApp. | No |
+| `APP_CODIGO_MAESTRO` | Código de acceso interno para la etapa de pruebas. Ver abajo. **Borrarlo antes de abrir la app a afiliados reales.** | No |
 
 Y para que el envío por mail funcione de verdad (si no están, el código
 sale por la consola de Replit):
@@ -105,6 +106,42 @@ demo: el código es …"), para poder probar el circuito completo.
 Protecciones ya puestas: el código se guarda hasheado (nunca en claro),
 vence a los 10 minutos, se invalida al primer uso, tolera 5 intentos
 fallidos y hay un tope de 3 códigos por DNI cada 10 minutos.
+
+### Código de acceso interno (solo etapa de pruebas)
+
+Mientras WhatsApp/SMS no tengan proveedor y el mail salga de una casilla
+provisoria, hace falta poder entrar con datos **reales** del padrón sin
+mandarle mensajes a beneficiarios de verdad. Para eso está
+`APP_CODIGO_MAESTRO`.
+
+Cómo funciona: con el Secret puesto, la pantalla de elección suma una
+tercera opción, *"Ingresar con código interno — solo para pruebas, no
+envía nada"*. Elegirla **no genera ni manda ningún código**; lleva
+directo al campo, y ahí se escribe el valor del Secret. La sesión que
+sale es una sesión normal, con los datos reales de ese afiliado.
+
+Qué NO cambia: el modo demo del front (`ospan_mock`) sigue igual, con su
+código `123456` y sus datos de ejemplo. Y en modo real, `123456` no entra.
+
+**Es una llave maestra.** Con ese código y un DNI del padrón se entra a la
+cuenta de cualquier afiliado y se ve la historia clínica de sus mascotas.
+Por eso:
+
+- Vive **solo en un Secret**, nunca en el repo (que es público). No hay
+  valor por defecto: sin el Secret, la opción no aparece, pedir
+  `canal: "interno"` da 400 y el código no sirve para nada.
+- No dispara envíos: por eso se ofrece como opción explícita y, mientras
+  está activo, la app nunca manda un código sin preguntar primero —
+  aunque el afiliado tenga un solo medio de contacto.
+- Cada uso queda registrado: una fila en `app_asociado.otp_challenge` con
+  `canal = 'interno'` y un aviso en el log del servidor con DNI e IP.
+- Al arrancar, el servidor escribe un aviso en el log recordando que está
+  activo.
+
+**Para desactivarlo: se borra el Secret `APP_CODIGO_MAESTRO`.** Nada más.
+Conviene usar un valor largo y no obvio en vez de seis dígitos: el campo
+acepta hasta 64 caracteres, y si la app queda accesible desde internet,
+seis dígitos se adivinan.
 
 ## Regla de acceso a los datos
 
@@ -222,6 +259,12 @@ solo) y `scripts/mockPegasusServer.ts`, contra el servidor real
   404. Token de atención sobre mascota ajena: 404.
 - El limitador de 3 códigos por DNI cada 10 minutos se activó solo durante
   las pruebas y la app mostró el mensaje correcto.
+- Código de acceso interno: con el Secret puesto aparece la tercera
+  opción, elegirla no crea ninguna fila de OTP ni manda ningún mail, y el
+  código entra con los datos reales del padrón dejando el rastro de
+  auditoría. Sin el Secret, la opción desaparece, `canal: "interno"` da
+  400 y el mismo código deja de servir. El modo demo siguió funcionando
+  igual, con su `123456` y sus datos de ejemplo.
 - `npm run typecheck` limpio y sin errores de JS en el navegador.
 - `/back-office`, `/api/ordenesmedicas` y `/health` siguen respondiendo
   igual que antes.
