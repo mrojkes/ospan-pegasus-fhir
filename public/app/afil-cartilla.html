@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>Directorio</title>
+<title>Cartilla</title>
 <link rel="icon" href="assets/img/icon-favicon.png" />
 <link rel="manifest" href="manifest.webmanifest" />
 <meta name="theme-color" content="#001753" />
@@ -12,7 +12,6 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 <meta name="apple-mobile-web-app-title" content="OSPAN" />
 <link rel="apple-touch-icon" href="assets/img/icon-apple-touch-favicon.png" />
-
 <link rel="stylesheet" href="assets/css/variables.css" />
   <link rel="stylesheet" href="assets/css/styles.css" />
   <link rel="stylesheet" href="assets/css/utilities.css" />
@@ -24,29 +23,23 @@
     <a class="back-link" href="afil-home.html" aria-label="Volver">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
     </a>
-    <h1 class="page-title">Directorio</h1>
+    <h1 class="page-title">Cartilla</h1>
   </header>
 
   <main class="page-body">
 
-    <div class="search-bar-row mb-10">
+    <div class="search-bar-row mb-6">
       <label class="search-input-pill">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
-        <input type="text" id="zona-input" list="zona-datalist" placeholder="Buscar por zona (Palermo, Belgrano...)" />
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+        <input type="text" id="buscar" placeholder="Buscar veterinaria, zona o especialidad" />
       </label>
-      <button class="locate-button" type="button" id="locate-button" aria-label="Usar mi ubicación">
-        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/></svg>
-      </button>
-      <datalist id="zona-datalist"></datalist>
     </div>
-    <p class="locate-status hidden" id="locate-status">Usando tu ubicación actual</p>
 
     <div class="list-section-header">
-      <h2 class="list-section-title" id="zone-section-title">Cerca tuyo</h2>
-      <span class="list-section-count" id="results-count">0 resultados</span>
+      <h2 class="list-section-title">Red de prestadores</h2>
+      <span class="list-section-count" id="conteo">—</span>
     </div>
-
-    <div class="record-list" id="veterinarias-list"></div>
+    <div class="record-list" id="lista"></div>
 
   </main>
 
@@ -54,8 +47,9 @@
 
   <script src="assets/js/mock-data.js"></script>
   <script src="assets/js/api-client.js"></script>
+  <script src="assets/js/app-shell.js"></script>
   <script src="assets/js/tab-bar.js"></script>
-  <script src="assets/js/screen-buscar.js"></script>
+  <script src="assets/js/screen-cartilla.js"></script>
   <script src="assets/js/pwa.js"></script>
 </body>
 </html>

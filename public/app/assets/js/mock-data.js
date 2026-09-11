@@ -288,3 +288,41 @@ window.MOCK_ORDENES = [
     adjuntos: [],
   },
 ];
+
+/* =========================================================
+   MOCK — Declaración jurada (FHIR Questionnaire)
+   Copia reducida del recurso que sirve el backend, para que la
+   pantalla funcione en modo demo sin conexión.
+   ========================================================= */
+window.MOCK_DDJJ = {
+  questionnaire: {
+    resourceType: "Questionnaire",
+    url: "https://ospan.org.ar/fhir/pegasus-panda/Questionnaire/ddjj-mascota",
+    version: "1.0.0",
+    title: "Declaración jurada de salud de la mascota",
+    status: "active",
+    item: [
+      { linkId: "preexistentes", text: "¿Tiene enfermedades preexistentes?", type: "boolean", required: true,
+        item: [{ linkId: "preexistentes-detalle", text: "¿Cuáles?", type: "text",
+                 enableWhen: [{ question: "preexistentes", operator: "=", answerBoolean: true }] }] },
+      { linkId: "cirugias", text: "¿Tiene cirugías previas?", type: "boolean", required: true,
+        item: [{ linkId: "cirugias-detalle", text: "¿Cuáles y cuándo?", type: "text",
+                 enableWhen: [{ question: "cirugias", operator: "=", answerBoolean: true }] }] },
+      { linkId: "alergias", text: "¿Tiene alergias conocidas?", type: "boolean", required: true,
+        item: [{ linkId: "alergias-detalle", text: "¿A qué es alérgica?", type: "text",
+                 enableWhen: [{ question: "alergias", operator: "=", answerBoolean: true }] }] },
+      { linkId: "esterilizado", text: "¿Está esterilizado/a?", type: "boolean", required: true },
+      { linkId: "medicacion", text: "¿Recibe medicación crónica?", type: "boolean", required: true,
+        item: [{ linkId: "medicacion-detalle", text: "¿Cuál y con qué frecuencia?", type: "text",
+                 enableWhen: [{ question: "medicacion", operator: "=", answerBoolean: true }] }] },
+      { linkId: "vacunacion", text: "¿Tiene el plan de vacunación al día?", type: "boolean", required: true,
+        item: [{ linkId: "vacunacion-detalle", text: "¿Qué vacuna le falta?", type: "text",
+                 enableWhen: [{ question: "vacunacion", operator: "=", answerBoolean: true }] }] },
+    ],
+  },
+  questionnaireResponse: null,
+  actualizadaEn: null,
+  versionRespondida: null,
+  versionActual: "1.0.0",
+  origen: "vacia",
+};

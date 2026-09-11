@@ -187,6 +187,122 @@ window.AppApi = (function () {
 
   function delay(ms) { return new Promise((r) => setTimeout(r, ms)); }
 
+  /* ---------- configuración de presentación (sin sesión) ---------- */
+  let configCache = null;
+  async function config() {
+    if (configCache) return configCache;
+    if (isMock()) { configCache = { vistaPreliminar: true }; return configCache; }
+    try { configCache = await request("GET", "/config"); }
+    catch (_) { configCache = { vistaPreliminar: false }; }
+    return configCache;
+  }
+
+  /* ---------- cartilla de prestadores ---------- */
+  async function cartilla(zona) {
+    if (isMock()) { await delay(200); return window.MOCK_CARTILLA || []; }
+    return request("GET", "/cartilla" + (zona ? "?zona=" + encodeURIComponent(zona) : ""));
+  }
+  async function prestador(id) {
+    if (isMock()) { await delay(150); return (window.MOCK_CARTILLA || []).find(function (p) { return String(p.id) === String(id); }); }
+    return request("GET", "/cartilla/" + encodeURIComponent(id));
+  }
+  async function disponibilidad(prestadorId, fecha) {
+    if (isMock()) { await delay(200); return { fecha: fecha, horas: ["09:00", "10:30", "14:00", "17:00"] }; }
+    return request("GET", "/cartilla/" + encodeURIComponent(prestadorId) + "/disponibilidad?fecha=" + encodeURIComponent(fecha));
+  }
+
+  /* ---------- autorizaciones ---------- */
+  async function autorizaciones() {
+    if (isMock()) { await delay(200); return window.MOCK_AUTORIZACIONES || []; }
+    return request("GET", "/autorizaciones");
+  }
+  async function crearAutorizacion(datos) {
+    if (isMock()) { await delay(400); return Object.assign({ codigo: "AUT-DEMO", estado: "pendiente" }, datos); }
+    return request("POST", "/autorizaciones", datos);
+  }
+
+  /* ---------- turnos ---------- */
+  async function turnos() {
+    if (isMock()) { await delay(200); return window.MOCK_TURNOS || []; }
+    return request("GET", "/turnos");
+  }
+  async function crearTurno(datos) {
+    if (isMock()) { await delay(400); return Object.assign({ codigo: "TUR-DEMO", estado: "solicitado" }, datos); }
+    return request("POST", "/turnos", datos);
+  }
+
+  /* ---------- copagos ---------- */
+  async function copagos() {
+    if (isMock()) { await delay(200); return { plan: null, items: window.MOCK_COPAGOS || [] }; }
+    return request("GET", "/copagos");
+  }
+
+  /* ---------- reintegros ---------- */
+  async function reintegros() {
+    if (isMock()) { await delay(200); return window.MOCK_REINTEGROS || []; }
+    return request("GET", "/reintegros");
+  }
+  async function crearReintegro(datos) {
+    if (isMock()) { await delay(500); return Object.assign({ codigo: "REI-DEMO", estado: "pendiente" }, datos); }
+    return request("POST", "/reintegros", datos);
+  }
+  function comprobanteUrl(adjuntoId) {
+    return BASE + "/reintegros/adjuntos/" + encodeURIComponent(adjuntoId);
+  }
+  /** Igual que los adjuntos de estudios: se baja con el header de sesión. */
+  async function comprobanteBlobUrl(adjuntoId) {
+    if (isMock()) return null;
+    const token = getToken();
+    const res = await fetch(comprobanteUrl(adjuntoId), { headers: token ? { Authorization: "Bearer " + token } : {} });
+    if (res.status === 401) { logout(); throw new ApiError(401, "Sesión vencida"); }
+    if (!res.ok) throw new ApiError(res.status, "No pudimos abrir el comprobante");
+    const blob = await res.blob();
+    return { url: URL.createObjectURL(blob), tipo: blob.type };
+  }
+
+  /* ---------- DDJJ ---------- */
+  async function ddjj(idHub) {
+    if (isMock()) { await delay(200); return window.MOCK_DDJJ; }
+    return request("GET", "/mascotas/" + encodeURIComponent(idHub) + "/ddjj");
+  }
+  /** `items` son los item[] de un QuestionnaireResponse; el recurso final
+   *  lo arma y valida el servidor. */
+  async function guardarDdjj(idHub, items) {
+    if (isMock()) {
+      await delay(400);
+      return {
+        ok: true,
+        actualizadaEn: new Date().toISOString(),
+        questionnaireResponse: { resourceType: "QuestionnaireResponse", status: "completed", item: items },
+      };
+    }
+    return request("POST", "/mascotas/" + encodeURIComponent(idHub) + "/ddjj", { item: items });
+  }
+
+  /* ---------- comunidad ---------- */
+  async function comunidad(tipo) {
+    if (isMock()) {
+      await delay(200);
+      const todos = window.MOCK_COMUNIDAD || [];
+      return !tipo || tipo === "Todos" ? todos : todos.filter(function (c) { return c.tipo === tipo; });
+    }
+    return request("GET", "/comunidad" + (tipo && tipo !== "Todos" ? "?tipo=" + encodeURIComponent(tipo) : ""));
+  }
+
+  /* ---------- recordatorios ---------- */
+  async function recordatorios() {
+    if (isMock()) { await delay(150); return window.MOCK_RECORDATORIOS || []; }
+    return request("GET", "/recordatorios");
+  }
+
+  function fmtPesos(n) {
+    const v = Number(n);
+    if (!isFinite(v)) return "—";
+    return "$" + v.toLocaleString("es-AR", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  }
+
+
+
   // ---------- helpers de presentación ----------
   function fmtFecha(iso) {
     if (!iso) return "—";
@@ -203,6 +319,13 @@ window.AppApi = (function () {
     solicitarCodigo, verificarCodigo, me, findMascota,
     ordenesDeMascota, orden, adjuntoBlobUrl, revocarAdjunto,
     historial, contrato, directorio, tokenAtencion,
-    fmtFecha, escapeHtml,
+    config, cartilla, prestador, disponibilidad,
+    autorizaciones, crearAutorizacion,
+    turnos, crearTurno,
+    copagos,
+    reintegros, crearReintegro, comprobanteBlobUrl,
+    ddjj, guardarDdjj,
+    comunidad, recordatorios,
+    fmtFecha, fmtPesos, escapeHtml,
   };
 })();

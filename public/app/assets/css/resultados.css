@@ -219,3 +219,195 @@
   font-size: 12px;
   font-weight: 600;
 }
+
+/* =========================================================
+   PANTALLAS DEL MVP
+   Autorizaciones, turnos, copagos, reintegros, cartilla, salud,
+   DDJJ y comunidad. Todo sobre los tokens de variables.css.
+   ========================================================= */
+
+/* ---- cartel de vista preliminar ---- */
+.preview-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: var(--color-status-pending-bg);
+  color: var(--color-status-pending-fg);
+  border-radius: var(--afil-radius-md);
+  padding: 10px 12px;
+  margin-bottom: var(--space-4);
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.preview-banner svg { flex: 0 0 auto; margin-top: 1px; }
+
+/* ---- grilla de accesos rápidos del home ---- */
+.quick-grid-wrap { margin-bottom: var(--space-5); }
+.quick-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-3) var(--space-2);
+}
+.quick-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  color: var(--color-text);
+}
+.quick-icon {
+  width: 48px; height: 48px;
+  border-radius: 14px;
+  background: rgba(var(--brand-primary-rgb), 0.18);
+  color: var(--brand-primary-dark);
+  display: flex; align-items: center; justify-content: center;
+}
+.quick-label { font-size: 11px; font-weight: 600; text-align: center; line-height: 1.2; }
+
+/* ---- recordatorios ---- */
+.recordatorio {
+  display: flex; gap: var(--space-3); align-items: center;
+  background: var(--color-status-pending-bg);
+  border-radius: var(--afil-radius-md);
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-2);
+}
+.recordatorio-icon {
+  width: 38px; height: 38px; border-radius: 12px;
+  background: var(--color-surface);
+  color: var(--color-status-pending-fg);
+  display: flex; align-items: center; justify-content: center; flex: 0 0 auto;
+}
+.recordatorio-titulo { font-size: 13px; font-weight: 700; margin: 0; }
+.recordatorio-meta { font-size: 11.5px; color: var(--color-text-muted); margin: 2px 0 0; }
+
+/* ---- formularios en panel ---- */
+.form-panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--afil-radius-md);
+  padding: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+.form-panel-title { font-size: 15px; font-weight: 700; margin: 0 0 var(--space-4); }
+.form-panel .form-group { margin-bottom: var(--space-3); }
+select.form-input { appearance: none; background-image: none; }
+textarea.form-input { resize: vertical; font: inherit; }
+
+/* ---- adjuntos ---- */
+.dropzone {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  border: 2px dashed var(--color-border);
+  border-radius: 12px;
+  padding: var(--space-5);
+  color: var(--color-text-muted);
+  text-align: center;
+  cursor: pointer;
+}
+.dropzone span { font-size: 13px; font-weight: 600; }
+.dropzone small { font-size: 11px; }
+.archivo-list { margin-top: var(--space-2); }
+.archivo-item {
+  display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  background: var(--color-bg); border-radius: 10px;
+  padding: 8px 10px; margin-top: 6px; font-size: 13px;
+}
+.archivo-item button {
+  border: 0; background: none; color: var(--color-danger, #b91c1c);
+  font-size: 18px; line-height: 1; cursor: pointer; padding: 0 4px;
+}
+.comprobante-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.comprobante-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  border: 1px solid var(--color-border); background: var(--color-surface);
+  border-radius: var(--radius-pill); padding: 4px 10px;
+  font: inherit; font-size: 11.5px; font-weight: 600;
+  color: var(--brand-primary-dark); cursor: pointer;
+}
+
+/* ---- solicitudes ---- */
+.resolucion {
+  font-size: 12px; color: var(--color-text-muted);
+  margin: 8px 0 0; padding-top: 8px;
+  border-top: 1px solid var(--color-border);
+  line-height: 1.45;
+}
+.monto-aprobado { font-size: 12px; font-weight: 600; color: var(--color-text-muted); }
+.turno-cuando {
+  display: inline-block; margin-top: 6px;
+  font-size: 14px; font-weight: 700; color: var(--brand-primary-dark);
+}
+
+/* ---- cartilla ---- */
+.copago-chip {
+  font-size: 13px; font-weight: 700; color: var(--brand-primary-dark); white-space: nowrap;
+}
+.rating {
+  display: inline-flex; align-items: center; gap: 3px;
+  color: #d97706; font-size: 12px;
+}
+.rating b { color: var(--color-text); }
+.rating-count { color: var(--color-text-muted); font-weight: 400; }
+.hero-copago { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.1; }
+.hero-copago small { font-size: 10px; opacity: .75; }
+
+/* ---- turnos: día y hora ---- */
+.hora-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-2); }
+.hora-chip {
+  padding: 10px; border-radius: 10px;
+  border: 1px solid var(--color-border); background: var(--color-surface);
+  font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.hora-chip.is-active {
+  background: var(--brand-primary-dark); border-color: var(--brand-primary-dark); color: #fff;
+}
+.hora-grid .empty-state { grid-column: 1 / -1; }
+
+/* ---- DDJJ ---- */
+.ddjj-item { padding: var(--space-4) 0; border-bottom: 1px solid var(--color-border); }
+.ddjj-item:last-of-type { border-bottom: 0; }
+.ddjj-pregunta { font-size: 14px; font-weight: 600; margin: 0 0 var(--space-3); }
+.ddjj-opciones { display: flex; gap: var(--space-2); margin-bottom: var(--space-2); }
+.ddjj-op {
+  flex: 1; padding: 10px; border-radius: 10px;
+  border: 1px solid var(--color-border); background: var(--color-surface);
+  font: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+}
+.ddjj-op.is-active {
+  background: var(--brand-primary-dark); border-color: var(--brand-primary-dark); color: #fff;
+}
+
+/* ---- comunidad ---- */
+.comunidad-top { display: flex; gap: var(--space-3); align-items: flex-start; }
+.comunidad-emoji {
+  width: 46px; height: 46px; border-radius: 14px;
+  background: var(--color-bg);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; flex: 0 0 auto;
+}
+.comunidad-body { flex: 1; min-width: 0; }
+.comunidad-precio { font-size: 13px; font-weight: 700; color: var(--brand-primary-dark); text-align: right; }
+.verificado { color: var(--color-status-open, #047857); font-size: 13px; }
+
+/* ---- salud ---- */
+.action-grid .menu-item { width: 100%; }
+
+/* El puntaje dentro del encabezado azul: el número usa el color de texto
+   general, que sobre ese fondo no se lee. */
+.orden-hero .rating b,
+.orden-hero .rating-count { color: #fff; }
+.orden-hero .rating-count { opacity: .75; }
+
+/* El botón claro sobre fondo claro quedaba sin borde y no se leía como
+   botón. */
+.page-body > .cta-button--light { border: 1px solid var(--color-border); }
+
+/* Formularios generados desde un FHIR Questionnaire. */
+.ddjj-sub { margin-top: var(--space-2); }
+.ddjj-grupo { margin-bottom: var(--space-4); }
+.ddjj-display { font-size: 13px; color: var(--color-text-muted); margin: 0 0 var(--space-3); }
+.ddjj-opciones--wrap { flex-wrap: wrap; }
+.ddjj-opciones--wrap .ddjj-op { flex: 0 1 auto; padding: 8px 16px; }
+.ddjj-pregunta .req { color: var(--color-danger, #b91c1c); }

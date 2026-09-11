@@ -103,7 +103,7 @@
     if (!api.requireSession()) return;
     wireSearch();
     wireLocate();
-    window.TabBar.render("buscar");
+    window.TabBar.render("cartilla");
     try { proveedores = await api.directorio(); } catch (_) { proveedores = []; }
     populateZonaDatalist();
     renderList("");

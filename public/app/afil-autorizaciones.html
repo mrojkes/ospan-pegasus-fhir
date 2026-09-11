@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Autorizaciones</title>
+<link rel="icon" href="assets/img/icon-favicon.png" />
+<link rel="manifest" href="manifest.webmanifest" />
+<meta name="theme-color" content="#001753" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="OSPAN" />
+<link rel="apple-touch-icon" href="assets/img/icon-apple-touch-favicon.png" />
+<link rel="stylesheet" href="assets/css/variables.css" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <link rel="stylesheet" href="assets/css/utilities.css" />
+  <link rel="stylesheet" href="assets/css/resultados.css" />
+</head>
+<body>
+
+  <header class="page-header">
+    <a class="back-link" href="afil-home.html" aria-label="Volver">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <h1 class="page-title">Autorizaciones</h1>
+  </header>
+
+  <main class="page-body">
+
+    <button class="cta-button cta-button--primary mb-6" type="button" id="nueva-btn">+ Nueva solicitud</button>
+
+    <form class="form-panel hidden" id="form-panel">
+      <p class="form-panel-title">Nueva autorización</p>
+
+      <div class="form-group">
+        <label class="form-label" for="f-mascota">Mascota</label>
+        <select class="form-input" id="f-mascota" required></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="f-tipo">Tipo de prestación</label>
+        <select class="form-input" id="f-tipo" required>
+          <option value="">Seleccionar…</option>
+          <option>Consulta especialista</option>
+          <option>Cirugía</option>
+          <option>Diagnóstico por imagen</option>
+          <option>Laboratorio</option>
+          <option>Internación</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="f-prestador">Veterinaria</label>
+        <select class="form-input" id="f-prestador"><option value="">Sin preferencia</option></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="f-diag">Diagnóstico presuntivo</label>
+        <input class="form-input" type="text" id="f-diag" placeholder="Lo que te indicó el profesional" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="f-cie">Código CIE-10 (opcional)</label>
+        <input class="form-input" type="text" id="f-cie" placeholder="Ej: L23" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="f-obs">Observaciones</label>
+        <textarea class="form-input" id="f-obs" rows="2" placeholder="Algo más que debamos saber"></textarea>
+      </div>
+
+      <p class="form-security-note text-red hidden" id="form-error"></p>
+      <button class="cta-button cta-button--primary" type="submit" id="enviar-btn">Enviar solicitud</button>
+      <button class="cta-button cta-button--outline mt-2" type="button" id="cancelar-btn">Cancelar</button>
+    </form>
+
+    <div class="list-section-header">
+      <h2 class="list-section-title">Historial</h2>
+      <span class="list-section-count" id="conteo">—</span>
+    </div>
+    <div class="record-list" id="lista"></div>
+
+  </main>
+
+  <nav class="tab-bar" id="tab-bar-mount"></nav>
+
+  <script src="assets/js/mock-data.js"></script>
+  <script src="assets/js/api-client.js"></script>
+  <script src="assets/js/app-shell.js"></script>
+  <script src="assets/js/tab-bar.js"></script>
+  <script src="assets/js/screen-autorizaciones.js"></script>
+  <script src="assets/js/pwa.js"></script>
+</body>
+</html>

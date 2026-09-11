@@ -97,7 +97,7 @@
 
   async function init() {
     if (!api.requireSession()) return;
-    window.TabBar.render("resultados");
+    window.TabBar.render("salud");
     wireFilters();
     try { afiliado = await api.me(); } catch (_) {
       document.getElementById("ordenes-list").innerHTML = '<p class="empty-state">No pudimos cargar tus datos.</p>';

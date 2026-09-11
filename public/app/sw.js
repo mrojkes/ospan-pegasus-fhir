@@ -10,17 +10,24 @@
    ========================================================= */
 // Subir este número en cada despliegue que cambie el shell (HTML/CSS/JS):
 // si no, el navegador sigue sirviendo la versión vieja desde la caché.
-const CACHE_VERSION = "ospan-app-v2";
+const CACHE_VERSION = "ospan-app-v4";
 const SHELL = [
   "./", "./index.html", "./afil-login.html", "./afil-home.html", "./afil-credencial.html",
   "./afil-buscar.html", "./afil-perfil.html", "./afil-contrato.html", "./afil-terminos.html",
   "./afil-resultados.html", "./afil-resultado-detalle.html",
+  "./afil-autorizaciones.html", "./afil-turnos.html", "./afil-copagos.html", "./afil-reintegros.html",
+  "./afil-cartilla.html", "./afil-prestador.html", "./afil-clinica.html", "./afil-ddjj.html",
+  "./afil-comunidad.html",
   "./manifest.webmanifest",
   "./assets/css/variables.css", "./assets/css/styles.css", "./assets/css/utilities.css", "./assets/css/resultados.css",
   "./assets/js/mock-data.js", "./assets/js/api-client.js", "./assets/js/tab-bar.js", "./assets/js/modal-utils.js",
   "./assets/js/app.js", "./assets/js/screen-login.js", "./assets/js/screen-onboarding.js", "./assets/js/screen-credencial.js",
   "./assets/js/screen-buscar.js", "./assets/js/screen-perfil.js", "./assets/js/screen-contrato.js",
   "./assets/js/resultados-utils.js", "./assets/js/screen-resultados.js", "./assets/js/screen-resultado-detalle.js",
+  "./assets/js/app-shell.js", "./assets/js/screen-autorizaciones.js", "./assets/js/screen-turnos.js",
+  "./assets/js/screen-copagos.js", "./assets/js/screen-reintegros.js", "./assets/js/screen-cartilla.js",
+  "./assets/js/screen-prestador.js", "./assets/js/screen-clinica.js", "./assets/js/screen-ddjj.js",
+  "./assets/js/screen-comunidad.js", "./assets/js/fhir-questionnaire.js",
   "./assets/js/pwa.js", "./assets/vendor/qrcode.min.js",
   "./assets/img/icon-favicon.png", "./assets/img/icon-512.png", "./assets/img/ospan-logo.png", "./assets/img/onboarding-app-Ospan.png",
   "./assets/img/credencial-base-plan100.png", "./assets/img/credencial-base-plan200.png", "./assets/img/credencial-base-plan300.png",

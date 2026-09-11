@@ -30,7 +30,9 @@
     // Si todas las mascotas comparten el mismo plan, se puede mostrar
     // como pill informativo. Si hay planes distintos, no se muestra
     // ningún pill de plan a nivel cuenta (el plan vive por mascota).
-    const planesUnicos = [...new Set(afiliado.mascotas.map((m) => m.plan))];
+    // El plan todavía no viene del padrón: si está vacío no se muestra el
+    // pill, en vez de un "Plan" sin número.
+    const planesUnicos = [...new Set(afiliado.mascotas.map((m) => m.plan).filter(Boolean))];
     if (planesUnicos.length === 1) {
       const planPill = document.createElement("span");
       planPill.className = "pill pill--info";
@@ -72,7 +74,8 @@
             '<span class="entity-name">' + mascota.nombre + "</span>" +
             '<span class="status-indicator-dot"></span>' +
           "</span>" +
-          '<p class="entity-subtitle">' + mascota.raza + " &bull; " + mascota.especie + "</p>" +
+          '<p class="entity-subtitle">' +
+            [mascota.raza, mascota.especie].filter(Boolean).join(" &bull; ") + "</p>" +
           '<span class="entity-tag-row">' +
             '<span class="tag tag--id">' + mascota.id + "</span>" +
             (mascota.plan ? '<span class="tag tag--plan">Plan ' + mascota.plan + "</span>" : "") +
@@ -102,6 +105,22 @@
     document.getElementById("general-contact").textContent = cfg.ayuda.general.ctaLabel;
   }
 
+  async function renderRecordatorios() {
+    let items = [];
+    try { items = await api.recordatorios(); } catch (_) { return; }
+    if (!items.length) return;   // sin recordatorios no se muestra la sección vacía
+
+    document.getElementById("recordatorios-wrap").classList.remove("hidden");
+    document.getElementById("recordatorios").innerHTML = items.map(function (r) {
+      return '<div class="recordatorio">' +
+        '<span class="recordatorio-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg></span>' +
+        '<div><p class="recordatorio-titulo">' + api.escapeHtml(r.titulo) + "</p>" +
+        '<p class="recordatorio-meta">' + api.fmtFecha(r.fecha) +
+          (r.mascota ? " &bull; " + api.escapeHtml(r.mascota) : "") + "</p></div>" +
+      "</div>";
+    }).join("");
+  }
+
   function renderResultadosShortcut() {
     const mount = document.getElementById("resultados-shortcut");
     if (!mount) return;
@@ -124,6 +143,7 @@
     renderIdentityCard();
     renderEntityList();
     renderResultadosShortcut();
+    renderRecordatorios();
   }
 
   document.addEventListener("DOMContentLoaded", init);

@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="assets/css/variables.css" />
   <link rel="stylesheet" href="assets/css/styles.css" />
   <link rel="stylesheet" href="assets/css/utilities.css" />
+  <link rel="stylesheet" href="assets/css/resultados.css" />
 </head>
 
 <body>
@@ -51,6 +52,49 @@
       </div>
       <div class="entity-list" id="entity-list"></div>
     </main>
+    <div class="quick-grid-wrap px-4">
+      <h2 class="section-title mb-3">Acciones rápidas</h2>
+      <div class="quick-grid">
+        <a class="quick-action" href="afil-autorizaciones.html">
+          <span class="quick-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+          <span class="quick-label">Autorizar</span>
+        </a>
+        <a class="quick-action" href="afil-turnos.html">
+          <span class="quick-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+          <span class="quick-label">Turnos</span>
+        </a>
+        <a class="quick-action" href="afil-copagos.html">
+          <span class="quick-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
+          <span class="quick-label">Copagos</span>
+        </a>
+        <a class="quick-action" href="afil-reintegros.html">
+          <span class="quick-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></span>
+          <span class="quick-label">Reintegros</span>
+        </a>
+        <a class="quick-action" href="afil-cartilla.html">
+          <span class="quick-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg></span>
+          <span class="quick-label">Cartilla</span>
+        </a>
+        <a class="quick-action" href="afil-clinica.html">
+          <span class="quick-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
+          <span class="quick-label">Clínica</span>
+        </a>
+        <a class="quick-action" href="afil-ddjj.html">
+          <span class="quick-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg></span>
+          <span class="quick-label">DDJJ</span>
+        </a>
+        <a class="quick-action" href="afil-comunidad.html">
+          <span class="quick-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+          <span class="quick-label">Comunidad</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="px-4 mb-4 hidden" id="recordatorios-wrap">
+      <h2 class="section-title mb-3">Próximos recordatorios</h2>
+      <div id="recordatorios"></div>
+    </div>
+
     <div class="px-4 mb-4">
       <a class="promo-card promo-card--brand" id="resultados-shortcut" href="afil-resultados.html" style="text-decoration:none">
         <div class="promo-content">
@@ -99,6 +143,7 @@
   <script src="assets/js/mock-data.js"></script>
   <script src="assets/js/api-client.js"></script>
   <script src="assets/js/tab-bar.js"></script>
+  <script src="assets/js/app-shell.js"></script>
   <script src="assets/js/app.js"></script>
   <script src="assets/js/pwa.js"></script>
 </body>
