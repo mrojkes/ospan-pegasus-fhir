@@ -19,10 +19,17 @@ src/app/                        API de la app
   auth.ts                       login DNI + elección de canal + código
   notificaciones.ts             canales disponibles y envío (email por SMTP)
   mapping.ts                    Pegasus -> shape que consume el celular
-  routes.ts                     rutas /api/app/*
+  routes.ts                     rutas base /api/app/*
+  routesMvp.ts                  rutas de las 8 funcionalidades del MVP
+  ddjjQuestionnaire.ts          el FHIR Questionnaire de la DDJJ
+  mvpQueries.ts                 consultas de esas funcionalidades
+  backOfficeSolicitudes.ts      pantalla de OSPAN para resolverlas
   index.ts                      montarAppAsociado(app)
 public/app/                     la PWA (HTML/CSS/JS, sin build)
-db/002-app-asociado-schema.sql  schema app_asociado
+db/002-app-asociado-schema.sql  schema app_asociado (login, credencial)
+db/003-app-mvp-schema.sql       tablas de las 8 funcionalidades
+db/004-ddjj-questionnaire.sql   DDJJ como QuestionnaireResponse
+src/fhir/types/questionnaire.ts tipos FHIR de Questionnaire (archivo nuevo)
 ```
 
 Cambios en archivos que ya existían, mínimos y aditivos: `src/index.ts`
@@ -52,6 +59,7 @@ La app queda en `http://localhost:3000/app/` y la API en `/api/app/*`.
 | `APP_TOKEN_TTL_MIN` | Validez del token de atención (default 15). | No |
 | `APP_CANAL_TELEFONO` | `sms` para que el canal de teléfono sea SMS en vez de WhatsApp. | No |
 | `APP_CODIGO_MAESTRO` | Código de acceso interno para la etapa de pruebas. Ver abajo. **Borrarlo antes de abrir la app a afiliados reales.** | No |
+| `APP_VISTA_PRELIMINAR` | `1` muestra el cartel "Vista preliminar" en las pantallas que todavía no están en producción. Se saca borrando el Secret. | No |
 
 Y para que el envío por mail funcione de verdad (si no están, el código
 sale por la consola de Replit):
@@ -143,6 +151,116 @@ Conviene usar un valor largo y no obvio en vez de seis dígitos: el campo
 acepta hasta 64 caracteres, y si la app queda accesible desde internet,
 seis dígitos se adivinan.
 
+## Funcionalidades del MVP
+
+Las ocho del prototipo PetConnect, todas con backend propio y
+persistencia real. La barra inferior pasó a las cinco pestañas del MVP
+(Inicio, Cartilla, Salud, Comunidad, Perfil) y el home tiene la grilla de
+accesos rápidos.
+
+| Pantalla | Qué hace | De dónde salen los datos |
+|---|---|---|
+| **Autorizar** | El afiliado pide una autorización (mascota, prestación, veterinaria, diagnóstico, CIE-10) y sigue su estado. | `app_asociado.solicitud_autorizacion`. La resuelve OSPAN. |
+| **Turnos** | Pide turno eligiendo veterinaria, día y franja; ve los pedidos. | `app_asociado.turno`. |
+| **Copagos** | Cuánto paga por categoría y qué cubre el plan. | `app_asociado.copago`. |
+| **Reintegros** | Carga una solicitud con comprobantes (foto o PDF) y sigue su estado. | `app_asociado.reintegro` + `reintegro_adjunto`. |
+| **Cartilla** | Red de prestadores con búsqueda, especialidades, puntaje y copago; desde la ficha se pide el turno. | `app_asociado.prestador`. |
+| **Clínica** | Historia clínica de la mascota. | **Órdenes médicas reales de Pegasus.** |
+| **DDJJ** | Cuestionario de antecedentes, versionado. Ver abajo: es un **FHIR Questionnaire**. | `app_asociado.ddjj`, con el padrón como valor de base. |
+| **Comunidad** | Paseadores, peluquerías, guarderías, pet shops y nutricionistas, con contacto por WhatsApp. | `app_asociado.comunidad_prestador`. |
+
+Además: **recordatorios** en el home (`app_asociado.recordatorio`, los
+carga OSPAN) y la **credencial digital** con token de atención, que ya
+estaban.
+
+### Quién resuelve las solicitudes
+
+Autorizaciones, turnos y reintegros no se aprueban solos. OSPAN los
+resuelve en **`/back-office/solicitudes`**, una pantalla nueva con
+pestañas por tipo, filtro de pendientes, y botones de aprobar/rechazar
+con motivo (en reintegros, además, el monto que se reconoce). Lo que se
+resuelve ahí aparece en el celular del afiliado, con el motivo.
+
+Ese router es propio y **no toca `routes/backOffice.ts`**.
+
+### Qué se sembró y qué no
+
+La migración carga datos de arranque **solo en las tablas de catálogo**:
+copagos, cartilla y comunidad. Son configuración que OSPAN va a editar,
+no información de afiliados. **No se inventó ningún dato clínico ni de
+padrón**: la historia clínica sale de Pegasus y la DDJJ arranca de lo que
+figura en la ficha de afiliación.
+
+### La DDJJ es un FHIR Questionnaire
+
+El formulario se define una sola vez como recurso **`Questionnaire`**
+(`src/app/ddjjQuestionnaire.ts`) y lo que responde el tutor se guarda
+como **`QuestionnaireResponse`**. La pantalla **no tiene ninguna pregunta
+escrita**: `assets/js/fhir-questionnaire.js` la dibuja leyendo el
+recurso, incluidos los tipos (`boolean`, `string`, `text`, `choice`,
+`group`, `display`), los ítems anidados y las condiciones `enableWhen`.
+
+Qué gana esto:
+
+- **Agregar o cambiar una pregunta es editar el recurso en el servidor.**
+  Nada de front, nada de migración. Está probado: se agregó una pregunta
+  de tipo `choice` —un tipo que la DDJJ no usaba— solo en el backend, y
+  apareció en el celular con sus tres opciones, se respondió y se guardó.
+- **Lo guardado es FHIR válido**, así que sale del repositorio tal cual,
+  sin una capa de traducción que mantener sincronizada.
+- **Versionado real.** Cada respuesta guarda con qué versión del
+  cuestionario se respondió (`questionnaire: "<url>|<version>"`). Si el
+  cuestionario cambió desde la última vez, la app se lo dice al tutor
+  ("agregamos preguntas nuevas: revisalas y volvé a guardar") sin que
+  nadie lo programe por pregunta.
+
+**Al cambiar las preguntas hay que subir `DDJJ_VERSION`.** Las
+declaraciones viejas siguen apuntando a la versión con la que se
+respondieron, así una de hace seis meses se interpreta con las preguntas
+que el tutor efectivamente vio.
+
+El recurso se sirve en `GET /api/app/ddjj/questionnaire`.
+
+**El `QuestionnaireResponse` lo arma el servidor, no el cliente.** De lo
+que manda la app se descartan los `linkId` que no están en el
+cuestionario, las respuestas cuyo tipo no corresponde al del ítem, y los
+detalles cuya condición `enableWhen` no se cumple (para que no quede
+guardado "alergias: no" con un detalle colgado). Todo eso está probado.
+
+**Pendiente de terminología:** los ítems todavía no llevan `code`. Preferí
+no inventar códigos LOINC/SNOMED. Cuando OSPAN defina el binding (o se
+conecte el schema `terminology` de la RDS) se agrega `code` a cada ítem y
+las respuestas ya guardadas siguen siendo válidas, porque el código vive
+en el Questionnaire y no en la respuesta.
+
+La migración `004` convierte lo que se había guardado con el formato
+anterior; la columna vieja `respuestas` queda al lado para poder
+verificar la conversión antes de descartarla.
+
+### Cartel de vista preliminar
+
+Con `APP_VISTA_PRELIMINAR=1`, las pantallas cuyo circuito todavía está en
+definición muestran arriba una franja que lo aclara ("las veterinarias
+todavía no confirman en línea", "el circuito de liquidación está en
+validación con OSPAN", etc.). Así, en una demo con el cliente, se
+distingue lo que ya está vivo de lo que falta acordar, sin tener que
+aclararlo cada vez. Se apaga borrando el Secret, pantalla por pantalla no:
+es todo o nada.
+
+### Lo que falta definir con OSPAN
+
+Tres cosas quedaron con una implementación propia porque no está
+confirmada la fuente real. Cada una es **una sola función** en
+`mvpQueries.ts`, para cambiarla sin tocar pantallas ni rutas:
+
+- **Copagos** (`copagosDePlan`) → el schema `financial` de la RDS tiene
+  carencias y precios.
+- **Cartilla** (`listarCartilla`) → el schema `vet` tiene la gestión de
+  prestadores.
+- **Agenda de turnos** (`franjasDisponibles`) → hoy son seis franjas
+  fijas y el turno queda "solicitado" hasta que alguien lo confirma.
+  Cuando exista la agenda de las veterinarias, se reserva directo.
+
 ## Regla de acceso a los datos
 
 **Ninguna** ruta acepta un `id_hub` del cliente sin antes verificar contra
@@ -170,6 +288,18 @@ nuevo, así que hereda el join con el tutor, el match por `documento` O
 | GET | `/api/app/contrato` | Contrato de afiliación |
 | GET | `/api/app/directorio` | Red de prestadores |
 | GET | `/api/app/historial` | Historial de prestaciones |
+| GET/POST | `/api/app/autorizaciones` | Autorizaciones del tutor / nueva solicitud |
+| GET/POST | `/api/app/turnos` | Turnos del tutor / pedir turno |
+| GET | `/api/app/copagos` | Copagos por categoría |
+| GET/POST | `/api/app/reintegros` | Reintegros del tutor / nueva solicitud |
+| GET | `/api/app/reintegros/adjuntos/:id` | Comprobante propio |
+| GET | `/api/app/cartilla` | Red de prestadores |
+| GET | `/api/app/cartilla/:id/disponibilidad` | Franjas libres de una veterinaria |
+| GET | `/api/app/ddjj/questionnaire` | El `Questionnaire` de la DDJJ |
+| GET/POST | `/api/app/mascotas/:idHub/ddjj` | `QuestionnaireResponse` de esa mascota |
+| GET | `/api/app/comunidad` | Servicios de la comunidad |
+| GET | `/api/app/recordatorios` | Vacunas y controles próximos |
+| GET | `/api/app/config` | Banderas de presentación (sin sesión) |
 
 ### Mis Resultados
 
@@ -282,6 +412,23 @@ solo) y `scripts/mockPegasusServer.ts`, contra el servidor real
   auditoría. Sin el Secret, la opción desaparece, `canal: "interno"` da
   400 y el mismo código deja de servir. El modo demo siguió funcionando
   igual, con su `123456` y sus datos de ejemplo.
+- Las ocho pantallas del MVP, recorridas con un navegador contra la base
+  real: se pidió un turno (y la franja quedó ocupada para el siguiente),
+  se cargó una autorización, se subió un reintegro con comprobante PDF y
+  se completó la DDJJ, que persistió tras recargar.
+- DDJJ como Questionnaire: el detalle condicional aparece y se oculta
+  según la respuesta; agregar una pregunta `choice` solo en el servidor
+  la hizo aparecer en la app con sus opciones, sin tocar el front; la
+  migración convirtió a `QuestionnaireResponse` lo guardado con el
+  formato anterior; y el servidor descartó un `linkId` inventado, una
+  respuesta con el tipo equivocado y un detalle sin su condición
+  cumplida.
+- Circuito completo con OSPAN: resolver desde `/back-office/solicitudes`
+  cambia lo que ve el afiliado, incluido el monto reconocido de un
+  reintegro y el motivo de la resolución.
+- Validaciones: turno en fecha pasada, franja ya ocupada (409), reintegro
+  sin comprobante, y un `.exe` disfrazado de comprobante — todas
+  rechazadas. Mascota ajena en autorizaciones, DDJJ y comprobantes: 404.
 - `npm run typecheck` limpio y sin errores de JS en el navegador.
 - `/back-office`, `/api/ordenesmedicas` y `/health` siguen respondiendo
   igual que antes.

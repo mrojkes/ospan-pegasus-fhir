@@ -17,12 +17,22 @@
 import path from "path";
 import express, { type Express } from "express";
 import { appAsociadoRouter } from "./routes";
+import { mvpRouter } from "./routesMvp";
+import { backOfficeSolicitudesRouter } from "./backOfficeSolicitudes";
 
 export function montarAppAsociado(app: Express, opciones: { rutaEstaticos?: string } = {}) {
   // El body parser puede estar ya montado globalmente; montarlo de nuevo
   // acotado a estas rutas es inofensivo y hace el módulo autocontenido.
-  app.use("/api/app", express.json({ limit: "256kb" }));
+  // 24 MB: los comprobantes de reintegro viajan como data URL dentro del
+  // JSON (hasta 4 archivos de 5 MB, que en base64 crecen ~33%).
+  app.use("/api/app", express.json({ limit: "24mb" }));
   app.use("/api/app", appAsociadoRouter);
+  app.use("/api/app", mvpRouter);
+
+  // Pantalla del back office para resolver lo que piden los afiliados.
+  // Router aparte: no toca routes/backOffice.ts.
+  app.use(express.urlencoded({ extended: true }));
+  app.use(backOfficeSolicitudesRouter);
 
   const estaticos = opciones.rutaEstaticos || path.resolve(process.cwd(), "public/app");
   app.use(

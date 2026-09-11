@@ -35,6 +35,18 @@ export const appAsociadoRouter = Router();
  */
 const ESPECIES: Record<number, string> = { 1: "Perro", 2: "Gato" };
 
+/**
+ * Configuración que la app necesita ANTES de tener sesión. No expone
+ * nada sensible: solo banderas de presentación.
+ */
+appAsociadoRouter.get("/config", (_req, res) => {
+  res.json({
+    // Cartel "Vista preliminar" en las pantallas que todavía no tienen
+    // datos de producción. Se apaga borrando el Secret.
+    vistaPreliminar: (process.env.APP_VISTA_PRELIMINAR || "") === "1",
+  });
+});
+
 /* ---------------- auth ---------------- */
 appAsociadoRouter.post("/auth/solicitar-codigo", asyncH(solicitarCodigo));
 appAsociadoRouter.post("/auth/verificar", asyncH(verificarCodigo));
