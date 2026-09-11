@@ -218,16 +218,33 @@ componentes del prototipo (`variables.css` / `styles.css` /
 Pantallas: onboarding, login, home, credencial + token, **Mis Resultados**,
 **detalle del estudio**, directorio, perfil, contrato y términos.
 
-`api-client.js` es la única puerta a los datos y tiene **modo mock**: con
-`localStorage.setItem("ospan_mock","1")` la app corre entera contra
-`mock-data.js`, sin backend — sirve para mostrarla sin conexión a la RDS.
-El default (`APP_CONFIG.api.mock`) hoy está en `true` para que se pueda
-abrir el `index.html` suelto; **al desplegar conviene ponerlo en `false`**.
+`api-client.js` es la única puerta a los datos y tiene **modo demo**, que
+corre toda la app contra `mock-data.js` sin backend.
+
+Cuándo entra en demo (`APP_CONFIG.api.mock`, default `"auto"`):
+
+- **Servida por el servidor** (Replit, `npm run dev`): datos reales del
+  padrón. Siempre.
+- **Abierta con doble clic** sobre el archivo (`file://`): demo, porque
+  ahí no hay backend al que pegarle.
+
+Para forzarlo desde la consola del navegador:
+`localStorage.setItem("ospan_mock","1")` demo,
+`...("ospan_mock","0")` real, `localStorage.removeItem("ospan_mock")`
+vuelve a automático.
+
+Cuando está en demo, el login muestra un cartel *"Modo demo — datos de
+ejemplo, sin conexión al padrón"*, para que no se confunda con datos
+reales.
 
 Es instalable en el celular: `manifest.webmanifest` + `sw.js`. El service
 worker cachea el shell y **nunca** cachea `/api/*` — los datos clínicos
-salen siempre a la red. Al cambiar el shell hay que subir `CACHE_VERSION`
-en `sw.js`.
+salen siempre a la red.
+
+**Al desplegar un cambio de pantallas hay que subir `CACHE_VERSION` en
+`sw.js`.** Si no, el navegador de quien ya abrió la app sigue sirviendo la
+versión vieja desde la caché y parece que el despliegue no tuvo efecto.
+La app además se recarga sola cuando detecta una versión nueva.
 
 ---
 
