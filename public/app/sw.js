@@ -8,7 +8,9 @@
        para que la UI muestre su mensaje de "sin conexión".
    Subir CACHE_VERSION en cada deploy que cambie el shell.
    ========================================================= */
-const CACHE_VERSION = "ospan-app-v1";
+// Subir este número en cada despliegue que cambie el shell (HTML/CSS/JS):
+// si no, el navegador sigue sirviendo la versión vieja desde la caché.
+const CACHE_VERSION = "ospan-app-v2";
 const SHELL = [
   "./", "./index.html", "./afil-login.html", "./afil-home.html", "./afil-credencial.html",
   "./afil-buscar.html", "./afil-perfil.html", "./afil-contrato.html", "./afil-terminos.html",

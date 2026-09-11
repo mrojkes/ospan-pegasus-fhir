@@ -206,3 +206,16 @@
   margin-top: 2px;
   overflow-wrap: anywhere;
 }
+
+/* Aviso de modo demo en el login. Solo se ve cuando la app corre con
+   datos de ejemplo (file:// o localStorage ospan_mock=1). */
+.modo-demo-badge {
+  display: inline-block;
+  margin: var(--space-2) auto 0;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--color-status-pending-bg);
+  color: var(--color-status-pending-fg);
+  font-size: 12px;
+  font-weight: 600;
+}

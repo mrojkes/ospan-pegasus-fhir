@@ -5,10 +5,17 @@
    o el tenant, no hardcodeado en el bundle.
    ========================================================= */
 window.APP_CONFIG = {
-  // api.mock=true => la app corre sola con MOCK_* (demo sin backend).
-  // En Replit, con el backend corriendo, poner false (o forzar desde la
-  // consola: localStorage.setItem("ospan_mock","0")).
-  api: { baseUrl: "/api/app", mock: true },
+  // mock: "auto"  -> demo SOLO si la página se abre con doble clic
+  //                   (file://), donde no hay backend al que pegarle.
+  //                   Servida desde el servidor (Replit), va siempre
+  //                   contra /api/app con datos reales del padrón.
+  //        true    -> forzar demo siempre.
+  //        false   -> forzar datos reales siempre.
+  // Para cambiarlo sin tocar el archivo, desde la consola del navegador:
+  //   localStorage.setItem("ospan_mock","1")  // demo
+  //   localStorage.setItem("ospan_mock","0")  // real
+  //   localStorage.removeItem("ospan_mock")   // volver a "auto"
+  api: { baseUrl: "/api/app", mock: "auto" },
   brand: {
     nombre: "OSPAN",
     logoIcono: "assets/img/icon-favicon.png", // isotipo cuadrado, para chips/header chico

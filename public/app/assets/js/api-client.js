@@ -13,13 +13,21 @@ window.AppApi = (function () {
   const TOKEN_KEY = "ospan_app_token";
   const ME_KEY = "ospan_app_me";
 
+  /**
+   * Demo o datos reales. El valor de localStorage manda sobre la config,
+   * para poder alternar sin tocar archivos. El default es "auto": demo
+   * solo cuando la página se abrió con doble clic (file://), porque ahí
+   * no hay backend; servida por el servidor, siempre datos reales.
+   */
   function isMock() {
     try {
       const forced = localStorage.getItem("ospan_mock");
       if (forced === "1") return true;
       if (forced === "0") return false;
     } catch (_) {}
-    return !!(cfg.api && cfg.api.mock);
+    const modo = cfg.api && cfg.api.mock;
+    if (modo === "auto" || modo == null) return window.location.protocol === "file:";
+    return !!modo;
   }
 
   function getToken() {

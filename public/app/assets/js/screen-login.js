@@ -43,6 +43,11 @@
     document.getElementById("security-note").textContent = cfg.login.notaSeguridad;
     document.getElementById("contact-phone-row").textContent = "Línea de atención: " + cfg.ayuda.general.telefono;
     document.getElementById("contact-hours-row").textContent = cfg.ayuda.general.horario;
+
+    // Aviso visible cuando la app NO está hablando con el backend: sin
+    // esto es imposible darse cuenta de que los datos son de ejemplo.
+    const badge = document.getElementById("modo-demo-badge");
+    if (badge) badge.classList.toggle("hidden", !api.isMock());
   }
 
   function setError(msg) {
