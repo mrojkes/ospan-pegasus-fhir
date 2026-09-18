@@ -268,10 +268,24 @@ function esActivo(estado: string | null): boolean {
  * (100200/01, 100200/02): el número del titular es el prefijo, común a
  * todas sus mascotas.
  */
+/**
+ * Número que el afiliado ve en la home.
+ *
+ * Se prefiere `nro_carnet`, y se descarta cualquier valor que sea el
+ * mismo identificador interno de la mascota (el id_hub): según cómo esté
+ * armada la consulta del padrón, `identificador_ospan` puede terminar
+ * apuntando a esa misma columna, y mostrarle "pet_990001" como número de
+ * afiliado no le dice nada a la persona.
+ */
 function numeroDeCuenta(mascotas: PadronPacienteConTutor[]): string {
   for (const m of mascotas) {
-    const id = (m.identificador_ospan ?? m.nro_carnet ?? "").trim();
-    if (id) return id.includes("/") ? id.split("/")[0] : id;
+    const candidatos = [m.nro_carnet, m.identificador_ospan];
+    for (const c of candidatos) {
+      const id = String(c ?? "").trim();
+      if (!id || id === m.id_hub) continue;
+      // "100200/01" -> "100200": el número de la cuenta es el prefijo.
+      return id.includes("/") ? id.split("/")[0] : id;
+    }
   }
   return "—";
 }

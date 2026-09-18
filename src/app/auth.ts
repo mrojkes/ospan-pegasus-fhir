@@ -153,7 +153,12 @@ export async function solicitarCodigo(req: Request, res: Response) {
     const elegido = canales.find((c) => c.tipo === canalPedido);
     if (!elegido) return res.status(400).json({ error: "Ese medio de contacto no está disponible" });
     canal = elegido;
-  } else if (opciones.length > 1) {
+  } else if (opciones.length > 1 || !canales.length) {
+    // Se pregunta siempre que haya más de una opción, y TAMBIÉN cuando no
+    // hay ningún canal de envío real: en ese caso la única opción es el
+    // acceso interno, que no manda nada. Sin este `|| !canales.length`,
+    // `canales[0]` quedaba `undefined` y el pedido explotaba más abajo
+    // con "Cannot read properties of undefined (reading 'tipo')".
     return res.json({ requiereEleccion: true, canales: opciones });
   } else {
     canal = canales[0];

@@ -35,6 +35,28 @@ export interface TutorRow {
 }
 
 /**
+ * El id del padrón SIEMPRE se maneja como string.
+ *
+ * No controlamos el tipo de clave del padrón: uuid, entero o código.
+ * Según el tipo, node-postgres devuelve string (uuid, bigint) o number
+ * (integer), y una comparación `===` entre 1 y "1" da false sin avisar
+ * — por ejemplo al filtrar las mascotas de un tutor, que devolvería la
+ * lista vacía. Normalizar acá evita todo eso.
+ */
+function idPadron(v: unknown): string {
+  return String(v ?? "");
+}
+
+/** Primer valor que parezca un número de documento. */
+function primerDocumento(...valores: Array<unknown>): string {
+  for (const v of valores) {
+    const s = String(v ?? "").replace(/\D/g, "");
+    if (s.length >= 6) return s;
+  }
+  return "";
+}
+
+/**
  * Tutores que matchean un documento. `buscarPacientesPorDocumentoTutor`
  * devuelve MASCOTAS (una fila por mascota, con su tutor embebido), así que
  * acá agrupamos por tutor: un documento puede matchear a más de un
@@ -46,10 +68,14 @@ export async function buscarTutoresPorDocumento(documento: string): Promise<Tuto
   const porTutor = new Map<string, TutorRow>();
   for (const m of mascotas) {
     if (!m.tutor) continue;
-    if (porTutor.has(m.tutor.id)) continue;
-    porTutor.set(m.tutor.id, {
-      related_person_id: m.tutor.id,
-      documento: m.tutor.documento ?? m.tutor.dni ?? documento,
+    const id = idPadron(m.tutor.id);
+    if (!id || porTutor.has(id)) continue;
+    porTutor.set(id, {
+      related_person_id: id,
+      // `documento` puede venir como etiqueta ("DNI") según cómo esté
+      // armada la consulta del padrón: se toma el primer valor que
+      // realmente parezca un documento, y si no, el que buscó el usuario.
+      documento: primerDocumento(m.tutor.dni, m.tutor.documento) || documento,
       nombre: m.tutor.nombre,
       apellido: m.tutor.apellido,
       telefono: m.tutor.telefono,
@@ -66,7 +92,7 @@ export async function listarMascotasDeTutor(
 ): Promise<PadronPacienteConTutor[]> {
   const mascotas = await buscarPacientesPorDocumentoTutor(documento);
   return mascotas
-    .filter((m) => m.tutor?.id === relatedPersonId)
+    .filter((m) => idPadron(m.tutor?.id) === idPadron(relatedPersonId))
     .sort((a, b) =>
       (a.identificador_ospan || a.nombre || "").localeCompare(b.identificador_ospan || b.nombre || "")
     );
@@ -82,6 +108,9 @@ export async function mascotaPerteneceATutor(
   relatedPersonId: string
 ): Promise<PadronPacienteConTutor | null> {
   const mascota = await buscarPacientePorIdHub(idHub);
-  if (!mascota || mascota.related_person_id !== relatedPersonId) return null;
+  if (!mascota) return null;
+  // Misma normalización que arriba: el padrón puede devolver el id como
+  // número y la sesión lo lleva como string.
+  if (idPadron(mascota.related_person_id) !== idPadron(relatedPersonId)) return null;
   return mascota;
 }
