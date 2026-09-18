@@ -41,6 +41,11 @@ backOfficeRouter.get("/back-office", (_req, res) => {
         </p>
         <div class="grid">
           <div class="card">
+            <h3>1. Sincronizar</h3>
+            <p>Traer las órdenes de una fecha (o rango corto) y persistirlas.</p>
+            <a class="btn" href="/back-office/sync">Ir a sincronizar</a>
+          </div>
+          <div class="card">
             <h3>2. Buscar paciente</h3>
             <p>Por DNI del tutor, por id_hub o por nombre de la mascota.</p>
             <a class="btn" href="/back-office/pacientes">Ir a buscar</a>
@@ -49,11 +54,6 @@ backOfficeRouter.get("/back-office", (_req, res) => {
             <h3>3. Reportes</h3>
             <p>Órdenes por profesional y por estado.</p>
             <a class="btn" href="/back-office/reportes">Ver reportes</a>
-          </div>
-          <div class="card">
-            <h3>1. Sincronizar</h3>
-            <p>Traer las órdenes de una fecha (o rango corto) y persistirlas.</p>
-            <a class="btn" href="/back-office/sync">Ir a sincronizar</a>
           </div>
         </div>
       </div>

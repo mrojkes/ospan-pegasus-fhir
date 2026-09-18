@@ -23,56 +23,26 @@ import type { PadronPacienteConTutor } from "./padronTypes";
  * propia dentro de fhir_repo con su propio índice.
  */
 const SELECT_PACIENTE_CON_TUTOR = `
- select * from (
+  select * from (
     select
-      p.id, 
-	  p.code identificador_ospan,
-	  p.nro_carnet, 
-	  p.nombre, 
-	  p.nombre legacy_nombre,
-      p.especie_id, 
-	  p.raza_ospan_code, 
-  	  p.raza_ospan_code legacy_raza, 
-      p.sexo, 
-	  EXTRACT(YEAR FROM AGE(p.fecha_nacimiento)) edad,
-      p.fecha_nacimiento, 
-	  p.fecha_alta, 
-	  p.estado, 
-	  p.motivo_baja,
-      p.color_pelaje, 
-	  p.origen, 
-	  p.origen_credencial, 
-	  p.photo_key,
-      p.has_preexisting_conditions, 
-	  p.preexisting_details, 
-	  p.health_declaration,
-      p.related_person_id, 
-	  p.sucursal_id, 
-	  p.updated_at,
-      p.code as id_hub,
-      rp.id as rp_id, 
-	  rp.code as cod_titular, 
-	  CONCAT(rp.apellido,' ',rp.nombre) nombre_completo_legacy,
-      rp.nombre as rp_nombre, 
-	  rp.apellido as rp_apellido, 
-	  rp.cuit cuit_cuil,
-      'DNI' documento, 
-	  rp.dni, 
-	  p.origen as rp_origen,
-      p.origen_credencial as rp_origen_credencial, 
-	  '' canal_pago, 
-	  rp.email,
-      rp.telefono, 
-	  rp.direccion_calle_y_numero, 
-	  rp.direccion_localidad,
-      rp.direccion_codigo_postal, 
-	  rp.direccion_provincia, 
-  	  rp.direccion_calle_y_numero direccion_legacy,
+      p.id, p.identificador_ospan, p.nro_carnet, p.nombre, p.legacy_nombre,
+      p.especie_id, p.raza_ospan_code, p.legacy_raza, p.sexo, p.edad,
+      p.fecha_nacimiento, p.fecha_alta, p.estado, p.motivo_baja,
+      p.color_pelaje, p.origen, p.origen_credencial, p.photo_key,
+      p.has_preexisting_conditions, p.preexisting_details, p.health_declaration,
+      p.related_person_id, p.sucursal_id, p.updated_at,
+      ('pet_' || left(replace(p.id::text, '-', ''), 15)) as id_hub,
+      rp.id as rp_id, rp.cod_titular, rp.nombre_completo_legacy,
+      rp.nombre as rp_nombre, rp.apellido as rp_apellido, rp.cuit_cuil,
+      rp.documento, rp.dni, rp.origen as rp_origen,
+      rp.origen_credencial as rp_origen_credencial, rp.canal_pago, rp.email,
+      rp.telefono, rp.direccion_calle_y_numero, rp.direccion_localidad,
+      rp.direccion_codigo_postal, rp.direccion_provincia, rp.direccion_legacy,
       rp.updated_at as rp_updated_at
     from padron.patient p
     left join padron.related_person rp on rp.id = p.related_person_id
   ) t
- `;
+`;
 
 function mapRow(row: Record<string, unknown>): PadronPacienteConTutor {
   const {
