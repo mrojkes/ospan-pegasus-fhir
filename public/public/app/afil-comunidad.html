@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Comunidad</title>
+<link rel="icon" href="assets/img/icon-favicon.png" />
+<link rel="manifest" href="manifest.webmanifest" />
+<meta name="theme-color" content="#001753" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="OSPAN" />
+<link rel="apple-touch-icon" href="assets/img/icon-apple-touch-favicon.png" />
+<link rel="stylesheet" href="assets/css/variables.css" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <link rel="stylesheet" href="assets/css/utilities.css" />
+  <link rel="stylesheet" href="assets/css/resultados.css" />
+</head>
+<body>
+
+  <header class="page-header">
+    <a class="back-link" href="afil-home.html" aria-label="Volver">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <h1 class="page-title">Comunidad</h1>
+  </header>
+
+  <main class="page-body">
+
+    <div class="info-note mb-6">
+      <span class="ic sz-sm rnd-sm tint-violet">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </span>
+      <div>
+        <p class="info-note-title">Servicios para tu mascota</p>
+        <p class="info-note-text">Paseadores, peluquerías, guarderías y más, verificados por OSPAN.</p>
+      </div>
+    </div>
+
+    <div class="filter-chips" id="filtros"></div>
+
+    <div class="list-section-header">
+      <h2 class="list-section-title" id="titulo-lista">Todos</h2>
+      <span class="list-section-count" id="conteo">—</span>
+    </div>
+    <div class="record-list" id="lista"></div>
+
+  </main>
+
+  <nav class="tab-bar" id="tab-bar-mount"></nav>
+
+  <script src="assets/js/mock-data.js"></script>
+  <script src="assets/js/api-client.js"></script>
+  <script src="assets/js/app-shell.js"></script>
+  <script src="assets/js/tab-bar.js"></script>
+  <script src="assets/js/screen-comunidad.js"></script>
+  <script src="assets/js/pwa.js"></script>
+</body>
+</html>

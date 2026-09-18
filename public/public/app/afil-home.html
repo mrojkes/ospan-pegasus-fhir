@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Portal del Afiliado</title>
+  <link rel="icon" href="assets/img/icon-favicon.png" />
+<link rel="manifest" href="manifest.webmanifest" />
+<meta name="theme-color" content="#001753" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="OSPAN" />
+<link rel="apple-touch-icon" href="assets/img/icon-apple-touch-favicon.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/variables.css" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <link rel="stylesheet" href="assets/css/utilities.css" />
+  <link rel="stylesheet" href="assets/css/resultados.css" />
+</head>
+
+<body>
+  <div class="app-shell">
+    <header class="top-header">
+      <div class="header-greeting-col">
+        <p class="header-greeting-label">Bienvenido/a</p>
+        <h1 class="header-greeting-name" id="greeting-name">Hola</h1>
+        <div class="status-pill-row" id="status-pill-row"></div>
+      </div>
+      <div class="header-brand-row">
+        <span class="brand-icon"><img id="brand-logo" src="" alt="" /></span>
+      </div>
+    </header>
+    <section class="identity-card">
+      <div class="identity-field">
+        <p class="identity-field-label">Nro. de Afiliado</p>
+        <p class="identity-field-value" id="afiliado-numero">—</p>
+      </div>
+      <div class="identity-field identity-field--right">
+        <p class="identity-field-label">DNI</p>
+        <p class="identity-field-value" id="afiliado-dni">—</p>
+      </div>
+    </section>
+    <main class="content-section">
+      <div class="section-header-row">
+        <h2 class="section-title" id="entity-section-title">Mis Mascotas</h2>
+        <span class="count-badge" id="entity-count-badge">0</span>
+      </div>
+      <div class="entity-list" id="entity-list"></div>
+    </main>
+    <div class="quick-grid-wrap px-4">
+      <h2 class="section-title mb-3">Acciones rápidas</h2>
+      <div class="quick-grid">
+        <a class="quick-action" href="afil-autorizaciones.html">
+          <span class="quick-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+          <span class="quick-label">Autorizar</span>
+        </a>
+        <a class="quick-action" href="afil-turnos.html">
+          <span class="quick-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+          <span class="quick-label">Turnos</span>
+        </a>
+        <a class="quick-action" href="afil-copagos.html">
+          <span class="quick-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
+          <span class="quick-label">Copagos</span>
+        </a>
+        <a class="quick-action" href="afil-reintegros.html">
+          <span class="quick-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></span>
+          <span class="quick-label">Reintegros</span>
+        </a>
+        <a class="quick-action" href="afil-cartilla.html">
+          <span class="quick-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg></span>
+          <span class="quick-label">Cartilla</span>
+        </a>
+        <a class="quick-action" href="afil-clinica.html">
+          <span class="quick-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
+          <span class="quick-label">Clínica</span>
+        </a>
+        <a class="quick-action" href="afil-ddjj.html">
+          <span class="quick-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg></span>
+          <span class="quick-label">DDJJ</span>
+        </a>
+        <a class="quick-action" href="afil-comunidad.html">
+          <span class="quick-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+          <span class="quick-label">Comunidad</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="px-4 mb-4 hidden" id="recordatorios-wrap">
+      <h2 class="section-title mb-3">Próximos recordatorios</h2>
+      <div id="recordatorios"></div>
+    </div>
+
+    <div class="px-4 mb-4">
+      <a class="promo-card promo-card--brand" id="resultados-shortcut" href="afil-resultados.html" style="text-decoration:none">
+        <div class="promo-content">
+          <p class="promo-eyebrow">Novedad</p>
+          <p class="promo-title">Mis Resultados</p>
+          <span class="promo-cta">Ver estudios y análisis</span>
+        </div>
+        <span class="promo-icon-circle">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h5"/></svg>
+        </span>
+      </a>
+    </div>
+    <hr class="divider" />
+    <div class="contact-section px-4">
+      <div class="promo-card promo-card--brand">
+        <div class="promo-content">
+          <p class="promo-eyebrow">Ayuda</p>
+          <p class="promo-title" id="general-title">—</p>
+          <a class="promo-cta" id="general-contact" href="tel:">Contactanos</a>
+        </div>
+        <span class="promo-icon-circle">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 18v-6a9 9 0 0118 0v6" />
+            <path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z" /></svg>
+        </span>
+      </div>
+      <button class="cta-button cta-button--light cta-button--icon hidden mb-4" type="button" id="pwa-install">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Instalar la app en tu celular
+      </button>
+      <div class="promo-card promo-card--alert">
+        <div class="promo-content">
+          <p class="promo-eyebrow">Urgencia</p>
+          <p class="promo-title" id="urgency-title">—</p>
+          <a class="promo-cta" id="urgency-contact" href="tel:">Llamar ahora</a>
+        </div>
+        <span class="promo-icon-circle">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="5" />
+            <path d="M12 8v8M8 12h8" /></svg>
+        </span>
+      </div>
+    </div>
+  </div>
+  <nav class="tab-bar" id="tab-bar-mount"></nav>
+  <script src="assets/js/mock-data.js"></script>
+  <script src="assets/js/api-client.js"></script>
+  <script src="assets/js/tab-bar.js"></script>
+  <script src="assets/js/app-shell.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/pwa.js"></script>
+</body>
+
+</html>

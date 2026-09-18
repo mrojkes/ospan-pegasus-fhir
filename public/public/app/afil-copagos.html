@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Copagos</title>
+<link rel="icon" href="assets/img/icon-favicon.png" />
+<link rel="manifest" href="manifest.webmanifest" />
+<meta name="theme-color" content="#001753" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="OSPAN" />
+<link rel="apple-touch-icon" href="assets/img/icon-apple-touch-favicon.png" />
+<link rel="stylesheet" href="assets/css/variables.css" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <link rel="stylesheet" href="assets/css/utilities.css" />
+  <link rel="stylesheet" href="assets/css/resultados.css" />
+</head>
+<body>
+
+  <header class="page-header">
+    <a class="back-link" href="afil-home.html" aria-label="Volver">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <h1 class="page-title">Copagos</h1>
+  </header>
+
+  <main class="page-body">
+
+    <div class="info-note mb-6">
+      <span class="ic sz-sm rnd-sm tint-sky">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      </span>
+      <div>
+        <p class="info-note-title">Qué vas a pagar</p>
+        <p class="info-note-text">El copago es la parte que abonás en la veterinaria. El resto lo cubre tu plan.</p>
+      </div>
+    </div>
+
+    <div class="field-card" id="lista"></div>
+    <p class="form-security-note mt-4" id="vigencia"></p>
+
+  </main>
+
+  <nav class="tab-bar" id="tab-bar-mount"></nav>
+
+  <script src="assets/js/mock-data.js"></script>
+  <script src="assets/js/api-client.js"></script>
+  <script src="assets/js/app-shell.js"></script>
+  <script src="assets/js/tab-bar.js"></script>
+  <script src="assets/js/screen-copagos.js"></script>
+  <script src="assets/js/pwa.js"></script>
+</body>
+</html>

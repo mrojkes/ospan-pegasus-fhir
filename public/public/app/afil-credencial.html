@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Credencial Digital</title>
+<link rel="icon" href="assets/img/icon-favicon.png" />
+<link rel="manifest" href="manifest.webmanifest" />
+<meta name="theme-color" content="#001753" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="OSPAN" />
+<link rel="apple-touch-icon" href="assets/img/icon-apple-touch-favicon.png" />
+
+<link rel="stylesheet" href="assets/css/variables.css" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <link rel="stylesheet" href="assets/css/utilities.css" />
+  <link rel="stylesheet" href="assets/css/resultados.css" />
+</head>
+<body>
+
+  <header class="page-header">
+    <a href="afil-home.html" class="back-link" aria-label="Volver">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <h1 class="page-title">Credencial Digital</h1>
+  </header>
+
+  <main class="page-body">
+
+    <button class="credential-card credential-card--compact credential-card--clickable" id="credential-compact" type="button" aria-label="Ampliar credencial">
+      <img class="credential-pet-photo" id="credential-photo-compact" src="" alt="" />
+    </button>
+
+    <button class="flip-toggle" id="ver-completa-btn" type="button">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect width="10" height="8" x="7" y="8" rx="1"/></svg>
+      <span>Ver Completa</span>
+    </button>
+
+    <div class="info-note">
+      <span class="info-note-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4.5 8-11V5l-8-3-8 3v6c0 6.5 8 11 8 11z"/></svg>
+      </span>
+      <div>
+        <p class="info-note-title">Presentá tu credencial</p>
+        <p class="info-note-text">Mostrá esta pantalla en cualquier veterinaria de la red OSPAN para acceder a tu cobertura.</p>
+      </div>
+    </div>
+    <hr class="divider" />
+    <div class="action-tile-full mb-6">
+      <button class="cta-button cta-button--primary" type="button" id="open-token">Generar Token de Atención</button>
+      <a class="cta-button cta-button--light cta-button--icon mt-3" id="ver-resultados" href="afil-resultados.html">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h5"/></svg>
+        Ver Mis Resultados
+      </a>
+    </div>
+    <hr class="divider" />
+    <div class="action-grid">
+      <p class="action-grid-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+        Historial de Prestaciones
+      </p>
+      <div class="record-list" id="historial-list"></div>
+    </div>
+
+  </main>
+
+  <!-- Modal: Credencial Completa -->
+  <div class="modal-overlay hidden" id="modal-credencial-completa">
+    <div class="modal-panel modal-panel--credential">
+      <div class="modal-header-row">
+        <p class="modal-title"></p>
+        <button class="modal-close-button" type="button" data-close-modal="modal-credencial-completa" aria-label="Cerrar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="credential-card credential-card--full" id="credential-full">
+        <img class="credential-pet-photo" id="credential-photo-full" src="" alt="" />
+        <div class="credential-text-overlay">
+          <p class="credential-pet-name" id="credential-nombre">—</p>
+          <p class="credential-field-row">Raza: <b id="credential-raza">—</b></p>
+          <p class="credential-field-row">Tutor/a: <b id="credential-tutor">—</b></p>
+          <p class="credential-field-row">DNI: <b id="credential-dni">—</b></p>
+          <p class="credential-field-row">Alta: <b id="credential-alta">—</b></p>
+          <p class="credential-field-row">Detalles: <b id="credential-detalles">—</b></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Token de Atención -->
+  <div class="modal-overlay hidden" id="modal-token">
+    <div class="modal-panel">
+      <div class="modal-header-row">
+        <p class="modal-title">Token de Atención</p>
+        <button class="modal-close-button" type="button" data-close-modal="modal-token" aria-label="Cerrar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="token-banner">
+        <p class="token-banner-title">
+          Mostrá este código al prestador
+        </p>
+        <div class="token-code" id="token-code">— — —</div>
+        <p class="token-timer">Válido por <span id="token-timer">15:00</span> min</p>
+      </div>
+      <div class="token-qr-wrap">
+        <canvas id="token-qr" width="180" height="180"></canvas>
+      </div>
+      <p class="token-hint-text">El prestador puede escanear el QR o ingresar el código</p>
+      <button class="cta-button cta-button--outline" type="button" data-close-modal="modal-token">Cerrar</button>
+    </div>
+  </div>
+
+  <script src="assets/vendor/qrcode.min.js"></script>
+  <script src="assets/js/mock-data.js"></script>
+  <script src="assets/js/api-client.js"></script>
+  <script src="assets/js/modal-utils.js"></script>
+  <script src="assets/js/screen-credencial.js"></script>
+  <script src="assets/js/pwa.js"></script>
+</body>
+</html>
