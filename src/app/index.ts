@@ -19,6 +19,8 @@ import express, { type Express } from "express";
 import { appAsociadoRouter } from "./routes";
 import { mvpRouter } from "./routesMvp";
 import { backOfficeSolicitudesRouter } from "./backOfficeSolicitudes";
+import { tramitesRouter } from "./tramites/routes";
+import { backOfficeTramitesRouter } from "./tramites/backOffice";
 
 export function montarAppAsociado(app: Express, opciones: { rutaEstaticos?: string } = {}) {
   // El body parser puede estar ya montado globalmente; montarlo de nuevo
@@ -28,11 +30,13 @@ export function montarAppAsociado(app: Express, opciones: { rutaEstaticos?: stri
   app.use("/api/app", express.json({ limit: "24mb" }));
   app.use("/api/app", appAsociadoRouter);
   app.use("/api/app", mvpRouter);
+  app.use("/api/app", tramitesRouter);
 
   // Pantalla del back office para resolver lo que piden los afiliados.
   // Router aparte: no toca routes/backOffice.ts.
   app.use(express.urlencoded({ extended: true }));
   app.use(backOfficeSolicitudesRouter);
+  app.use(backOfficeTramitesRouter);
 
   const estaticos = opciones.rutaEstaticos || path.resolve(process.cwd(), "public/app");
   app.use(

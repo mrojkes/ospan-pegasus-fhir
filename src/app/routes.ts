@@ -12,6 +12,8 @@
 import { Router, type Request, type Response, type NextFunction, type RequestHandler } from "express";
 import crypto from "crypto";
 import { Readable } from "stream";
+import fs from "fs";
+import path from "path";
 import {
   getPool,
   obtenerEstudiosPaciente,
@@ -78,10 +80,9 @@ appAsociadoRouter.get("/me", requiereSesion, asyncH(async (req, res) => {
       // plan y la credencial usa una base por defecto.
       plan: "",
       estado: m.estado ?? "",
-      // PENDIENTE: `photo_key` existe en el padrón (probablemente una key
-      // de storage). Hasta resolver cómo se sirve, la app cae en las
-      // iniciales del nombre.
-      foto: null,
+      // Foto: `photo_key` es el nombre del archivo en public/app/assets/img.
+      // Si no hay archivo, la app muestra las iniciales.
+      foto: urlFoto(m.photo_key),
       iniciales: (m.nombre ?? m.legacy_nombre ?? "??").slice(0, 2).toUpperCase(),
       fechaNacimiento: fecha(m.fecha_nacimiento),
       alta: fecha(m.fecha_alta),
@@ -91,6 +92,27 @@ appAsociadoRouter.get("/me", requiereSesion, asyncH(async (req, res) => {
     })),
   });
 }));
+
+/* ---------------- Foto de la mascota ----------------
+   `padron.patient.photo_key` guarda el NOMBRE del archivo, y el archivo
+   vive en public/app/assets/img (la misma carpeta que sirve la PWA).
+
+   - Se usa solo el nombre (path.basename): un photo_key con "../" o con
+     una ruta no puede apuntar fuera de la carpeta de imágenes.
+   - Solo extensiones de imagen.
+   - Si el archivo no está en la carpeta se devuelve null, y la app cae
+     en las iniciales en vez de mostrar una imagen rota.
+   - La URL es relativa a /app/, que es desde donde cargan las pantallas.
+   ------------------------------------------------------ */
+const DIR_FOTOS = path.resolve(process.cwd(), "public/app/assets/img");
+const EXT_IMAGEN = /\.(jpe?g|png|webp|gif)$/i;
+
+function urlFoto(photoKey: unknown): string | null {
+  const archivo = path.basename(String(photoKey ?? "").trim().replace(/\\/g, "/"));
+  if (!archivo || !EXT_IMAGEN.test(archivo)) return null;
+  if (!fs.existsSync(path.join(DIR_FOTOS, archivo))) return null;
+  return "assets/img/" + encodeURIComponent(archivo);
+}
 
 /* ---------------- Mis Resultados ---------------- */
 appAsociadoRouter.get("/mascotas/:idHub/ordenes", requiereSesion, asyncH(async (req, res) => {

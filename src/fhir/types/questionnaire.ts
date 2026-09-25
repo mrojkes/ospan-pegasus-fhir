@@ -10,7 +10,7 @@
  * falta, no antes.
  */
 
-import type { Coding, DomainResource, Reference } from "./r4";
+import type { Attachment, Coding, DomainResource, Reference } from "./r4";
 
 export type QuestionnaireItemType =
   | "group"
@@ -22,7 +22,9 @@ export type QuestionnaireItemType =
   | "dateTime"
   | "string"
   | "text"
-  | "choice";
+  | "choice"
+  /** Documentación que el afiliado adjunta (FHIR: `attachment`). */
+  | "attachment";
 
 /** Condición para mostrar un ítem según la respuesta de otro. */
 export interface QuestionnaireEnableWhen {
@@ -70,6 +72,12 @@ export interface Questionnaire extends DomainResource {
 
 export interface QuestionnaireResponseAnswer {
   valueBoolean?: boolean;
+  /**
+   * Adjunto. El binario NO va acá: se guarda aparte (tabla propia /
+   * DocumentReference) y el answer queda con el nombre, el tipo y la
+   * URL autenticada desde donde se descarga.
+   */
+  valueAttachment?: Attachment;
   valueString?: string;
   valueDecimal?: number;
   valueInteger?: number;
