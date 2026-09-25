@@ -86,6 +86,13 @@ window.AppShell = (function () {
     rechazado:  { label: "Rechazado",  cls: "status-chip--cancelada" },
     cancelado:  { label: "Cancelado",  cls: "status-chip--cancelada" },
     anulada:    { label: "Anulada",    cls: "status-chip--cancelada" },
+    // Estados de los trámites (FHIR Task: requested / in-progress /
+    // on-hold / completed / rejected / cancelled).
+    abierto:             { label: "Ingresado",            cls: "status-chip--pendiente" },
+    en_proceso:          { label: "En análisis",          cls: "status-chip--pendiente" },
+    falta_documentacion: { label: "Falta documentación",  cls: "status-chip--otro" },
+    resuelto:            { label: "Resuelto",             cls: "status-chip--realizada" },
+    anulado:             { label: "Anulado",              cls: "status-chip--cancelada" },
   };
 
   function chipEstado(estado) {

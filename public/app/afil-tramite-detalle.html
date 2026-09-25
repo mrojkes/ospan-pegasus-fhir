@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Trámite</title>
+<link rel="icon" href="assets/img/icon-favicon.png" />
+<link rel="manifest" href="manifest.webmanifest" />
+<meta name="theme-color" content="#001753" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="OSPAN" />
+<link rel="apple-touch-icon" href="assets/img/icon-apple-touch-favicon.png" />
+<link rel="stylesheet" href="assets/css/variables.css" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <link rel="stylesheet" href="assets/css/utilities.css" />
+  <link rel="stylesheet" href="assets/css/resultados.css" />
+</head>
+<body>
+
+  <header class="page-header">
+    <a class="back-link" href="afil-tramites.html" aria-label="Volver">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <h1 class="page-title">Trámite</h1>
+  </header>
+
+  <main class="page-body" id="cuerpo">
+    <div id="cargando"></div>
+
+    <section class="hidden" id="contenido">
+
+      <div class="tramite-cabecera">
+        <div class="record-item-top">
+          <p class="record-item-title" id="t-titulo"></p>
+          <span id="t-estado"></span>
+        </div>
+        <p class="record-item-meta" id="t-meta"></p>
+      </div>
+
+      <div class="panel hidden" id="panel-resolucion">
+        <p class="panel-title">Respuesta de OSPAN</p>
+        <p class="resolucion" id="t-resolucion"></p>
+      </div>
+
+      <h2 class="list-section-title mt-6">Seguimiento</h2>
+      <ol class="timeline" id="t-eventos"></ol>
+
+      <h2 class="list-section-title mt-6">Lo que enviaste</h2>
+      <div class="dato-list" id="t-respuesta"></div>
+
+      <h2 class="list-section-title mt-6">Documentación</h2>
+      <div id="t-adjuntos"></div>
+
+      <div class="hidden" id="acciones">
+        <button class="cta-button cta-button--outline mt-6" type="button" id="btn-doc">Agregar documentación</button>
+        <input type="file" id="f-doc" accept="image/*,application/pdf" multiple hidden />
+        <div class="archivo-list" id="doc-lista"></div>
+        <button class="cta-button cta-button--primary hidden mt-2" type="button" id="btn-enviar-doc">Enviar documentación</button>
+        <button class="cta-button cta-button--outline mt-2 text-red" type="button" id="btn-anular">Anular este trámite</button>
+      </div>
+
+      <p class="form-security-note text-red hidden mt-2" id="msg-error"></p>
+      <p class="form-security-note text-green hidden mt-2" id="msg-ok"></p>
+    </section>
+  </main>
+
+  <script src="assets/js/mock-data.js"></script>
+  <script src="assets/js/api-client.js"></script>
+  <script src="assets/js/app-shell.js"></script>
+  <script src="assets/js/fhir-questionnaire.js"></script>
+  <script src="assets/js/screen-tramite-detalle.js"></script>
+  <script src="assets/js/pwa.js"></script>
+</body>
+</html>

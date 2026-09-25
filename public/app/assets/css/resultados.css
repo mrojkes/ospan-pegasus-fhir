@@ -411,3 +411,96 @@ textarea.form-input { resize: vertical; font: inherit; }
 .ddjj-opciones--wrap { flex-wrap: wrap; }
 .ddjj-opciones--wrap .ddjj-op { flex: 0 1 auto; padding: 8px 16px; }
 .ddjj-pregunta .req { color: var(--color-danger, #b91c1c); }
+
+/* =========================================================
+   TRÁMITES
+   Listado, catálogo, seguimiento y detalle. Todo con las
+   mismas variables de marca que el resto de la app.
+   ========================================================= */
+
+/* ---- catálogo de trámites ---- */
+.tramite-tipos { display: flex; flex-direction: column; gap: 8px; }
+.tramite-tipo {
+  display: flex; flex-direction: column; gap: 2px; text-align: left;
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--afil-radius-md); padding: var(--space-4);
+  font: inherit; cursor: pointer; width: 100%;
+}
+.tramite-tipo:active { background: var(--color-bg); }
+.tramite-tipo-titulo { font-size: 14.5px; font-weight: 700; color: var(--color-text); }
+.tramite-tipo-resumen { font-size: 12.5px; color: var(--color-text-muted); line-height: 1.4; }
+
+/* ---- filtros del listado ---- */
+.filtro-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: var(--space-4); }
+.filtro-chip {
+  border: 1px solid var(--color-border); background: var(--color-surface);
+  border-radius: var(--radius-pill); padding: 6px 14px;
+  font: inherit; font-size: 12.5px; font-weight: 600;
+  color: var(--color-text-muted); cursor: pointer;
+}
+.filtro-chip.is-active {
+  background: var(--brand-primary-dark); border-color: var(--brand-primary-dark); color: #fff;
+}
+
+/* ---- cabecera del trámite ---- */
+.tramite-cabecera {
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--afil-radius-md); padding: var(--space-4);
+}
+.panel {
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--afil-radius-md); padding: var(--space-4); margin-top: var(--space-3);
+}
+.panel-title { font-size: 13px; font-weight: 700; margin: 0; }
+.section-hint { font-size: 13px; color: var(--color-text-muted); margin: 0 0 var(--space-4); line-height: 1.45; }
+
+/* ---- seguimiento ---- */
+.timeline { list-style: none; margin: 0; padding: 0 0 0 18px; position: relative; }
+.timeline::before {
+  content: ""; position: absolute; left: 4px; top: 6px; bottom: 6px;
+  width: 2px; background: var(--color-border);
+}
+.timeline-item { position: relative; padding-bottom: var(--space-4); }
+.timeline-dot {
+  position: absolute; left: -18px; top: 4px;
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--brand-primary-dark);
+}
+.timeline-titulo { font-size: 13.5px; font-weight: 700; margin: 0; }
+.timeline-fecha { font-size: 12px; color: var(--color-text-muted); margin: 2px 0 0; }
+.timeline-detalle { font-size: 13px; color: var(--color-text); margin: 4px 0 0; line-height: 1.45; }
+
+/* ---- lo que envió el afiliado ---- */
+.dato-list { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--afil-radius-md); }
+.dato-row {
+  display: flex; gap: 12px; justify-content: space-between;
+  padding: 10px var(--space-4); border-bottom: 1px solid var(--color-border);
+}
+.dato-row:last-child { border-bottom: 0; }
+.dato-label { font-size: 12.5px; color: var(--color-text-muted); flex: 1 1 50%; line-height: 1.4; }
+.dato-value { font-size: 13px; font-weight: 600; text-align: right; flex: 1 1 45%; line-height: 1.4; word-break: break-word; }
+.adjunto-link { color: var(--brand-primary-dark); text-decoration: underline; }
+
+/* ---- obligatorio que falta ---- */
+.is-faltante {
+  border-left: 3px solid var(--color-danger, #b91c1c);
+  padding-left: 10px; margin-left: -13px;
+}
+
+/* ---- comprobante de alta ---- */
+.tramite-ok { text-align: center; padding: var(--space-6) 0; }
+.tramite-ok-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 56px; height: 56px; border-radius: 50%;
+  background: var(--color-bg); color: var(--brand-primary-dark); margin-bottom: var(--space-3);
+}
+.tramite-ok-titulo { font-size: 17px; font-weight: 700; margin: 0; }
+.tramite-ok-nro {
+  font-size: 22px; font-weight: 800; letter-spacing: .5px;
+  color: var(--brand-primary-dark); margin: 4px 0 var(--space-3);
+}
+
+.archivo-quitar {
+  border: 0; background: none; color: var(--color-danger, #b91c1c);
+  font-size: 18px; line-height: 1; cursor: pointer; padding: 0 4px;
+}

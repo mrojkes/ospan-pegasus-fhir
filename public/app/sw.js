@@ -10,12 +10,13 @@
    ========================================================= */
 // Subir este número en cada despliegue que cambie el shell (HTML/CSS/JS):
 // si no, el navegador sigue sirviendo la versión vieja desde la caché.
-const CACHE_VERSION = "ospan-app-v4";
+const CACHE_VERSION = "ospan-app-v5";
 const SHELL = [
   "./", "./index.html", "./afil-login.html", "./afil-home.html", "./afil-credencial.html",
   "./afil-buscar.html", "./afil-perfil.html", "./afil-contrato.html", "./afil-terminos.html",
   "./afil-resultados.html", "./afil-resultado-detalle.html",
   "./afil-autorizaciones.html", "./afil-turnos.html", "./afil-copagos.html", "./afil-reintegros.html",
+  "./afil-tramites.html", "./afil-tramite-nuevo.html", "./afil-tramite-detalle.html",
   "./afil-cartilla.html", "./afil-prestador.html", "./afil-clinica.html", "./afil-ddjj.html",
   "./afil-comunidad.html",
   "./manifest.webmanifest",
@@ -28,6 +29,7 @@ const SHELL = [
   "./assets/js/screen-copagos.js", "./assets/js/screen-reintegros.js", "./assets/js/screen-cartilla.js",
   "./assets/js/screen-prestador.js", "./assets/js/screen-clinica.js", "./assets/js/screen-ddjj.js",
   "./assets/js/screen-comunidad.js", "./assets/js/fhir-questionnaire.js",
+  "./assets/js/screen-tramites.js", "./assets/js/screen-tramite-nuevo.js", "./assets/js/screen-tramite-detalle.js",
   "./assets/js/pwa.js", "./assets/vendor/qrcode.min.js",
   "./assets/img/icon-favicon.png", "./assets/img/icon-512.png", "./assets/img/ospan-logo.png", "./assets/img/onboarding-app-Ospan.png",
   "./assets/img/credencial-base-plan100.png", "./assets/img/credencial-base-plan200.png", "./assets/img/credencial-base-plan300.png",

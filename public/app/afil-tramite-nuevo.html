@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Iniciar un trámite</title>
+<link rel="icon" href="assets/img/icon-favicon.png" />
+<link rel="manifest" href="manifest.webmanifest" />
+<meta name="theme-color" content="#001753" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="OSPAN" />
+<link rel="apple-touch-icon" href="assets/img/icon-apple-touch-favicon.png" />
+<link rel="stylesheet" href="assets/css/variables.css" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <link rel="stylesheet" href="assets/css/utilities.css" />
+  <link rel="stylesheet" href="assets/css/resultados.css" />
+</head>
+<body>
+
+  <header class="page-header">
+    <a class="back-link" href="afil-tramites.html" aria-label="Volver" id="volver">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <h1 class="page-title" id="titulo">Iniciar un trámite</h1>
+  </header>
+
+  <main class="page-body">
+
+    <!-- Paso 1: elegir el trámite -->
+    <section id="paso-tipos">
+      <p class="section-hint">Elegí qué necesitás. Después te pedimos solo los datos de ese trámite.</p>
+      <div class="tramite-tipos" id="tipos"></div>
+    </section>
+
+    <!-- Paso 2: el formulario, dibujado desde el Questionnaire -->
+    <section id="paso-form" class="hidden">
+      <p class="section-hint" id="resumen-tipo"></p>
+
+      <div class="form-group" id="grupo-mascota">
+        <label class="form-label" for="f-mascota">Mascota</label>
+        <select class="form-input" id="f-mascota"></select>
+      </div>
+
+      <form id="tramite-form" novalidate>
+        <div id="preguntas"></div>
+        <p class="form-security-note text-red hidden" id="form-error"></p>
+        <button class="cta-button cta-button--primary" type="submit" id="enviar-btn">Enviar trámite</button>
+        <button class="cta-button cta-button--outline mt-2" type="button" id="cancelar-btn">Elegir otro trámite</button>
+      </form>
+    </section>
+
+    <!-- Paso 3: comprobante -->
+    <section id="paso-ok" class="hidden">
+      <div class="tramite-ok">
+        <span class="tramite-ok-icon">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        </span>
+        <p class="tramite-ok-titulo">Trámite iniciado</p>
+        <p class="tramite-ok-nro" id="ok-nro"></p>
+        <p class="section-hint">Guardá el número: con él seguís el trámite desde Mis trámites.</p>
+        <a class="cta-button cta-button--primary" id="ok-ver" href="#">Ver el trámite</a>
+        <a class="cta-button cta-button--outline mt-2" href="afil-tramites.html">Volver a mis trámites</a>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="assets/js/mock-data.js"></script>
+  <script src="assets/js/api-client.js"></script>
+  <script src="assets/js/app-shell.js"></script>
+  <script src="assets/js/fhir-questionnaire.js"></script>
+  <script src="assets/js/screen-tramite-nuevo.js"></script>
+  <script src="assets/js/pwa.js"></script>
+</body>
+</html>

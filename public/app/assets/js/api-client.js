@@ -163,6 +163,66 @@ window.AppApi = (function () {
     try { if (url) URL.revokeObjectURL(url); } catch (_) {}
   }
 
+
+  // ---------- trámites (expedientes) ----------
+
+  /**
+   * El catálogo y cada formulario vienen del servidor: la app no tiene
+   * ningún trámite escrito. Agregar un trámite en el backend lo hace
+   * aparecer acá sin tocar el front.
+   */
+  async function tramiteTipos() {
+    if (isMock()) { await delay(150); return window.MOCK_TRAMITE_TIPOS || { tipos: [] }; }
+    return request("GET", "/tramites/tipos");
+  }
+
+  async function tramiteFormulario(codigo) {
+    if (isMock()) { await delay(150); return (window.MOCK_TRAMITE_FORMULARIOS || {})[codigo]; }
+    return request("GET", "/tramites/tipos/" + encodeURIComponent(codigo));
+  }
+
+  async function tramites(filtros) {
+    if (isMock()) { await delay(200); return { tramites: window.MOCK_TRAMITES || [] }; }
+    const qs = [];
+    if (filtros && filtros.estado) qs.push("estado=" + encodeURIComponent(filtros.estado));
+    if (filtros && filtros.mascota) qs.push("mascota=" + encodeURIComponent(filtros.mascota));
+    return request("GET", "/tramites" + (qs.length ? "?" + qs.join("&") : ""));
+  }
+
+  async function tramite(nro) {
+    if (isMock()) { await delay(200); return (window.MOCK_TRAMITES || [])[0]; }
+    return request("GET", "/tramites/" + encodeURIComponent(nro));
+  }
+
+  async function crearTramite(datos) {
+    if (isMock()) {
+      await delay(500);
+      return { nro: "TR-DEMO-000001", estado: "abierto", estadoTexto: "Ingresado", creadoEn: new Date().toISOString() };
+    }
+    return request("POST", "/tramites", datos);
+  }
+
+  async function agregarDocumentacion(nro, adjuntos, nota) {
+    if (isMock()) { await delay(400); return { ok: true }; }
+    return request("POST", "/tramites/" + encodeURIComponent(nro) + "/adjuntos", { adjuntos, nota });
+  }
+
+  async function anularTramite(nro, motivo) {
+    if (isMock()) { await delay(300); return { ok: true }; }
+    return request("POST", "/tramites/" + encodeURIComponent(nro) + "/anular", { motivo });
+  }
+
+  /** Igual que los adjuntos de Pegasus: el token va en el header, no en la URL. */
+  async function archivoBlobUrl(url) {
+    if (isMock()) return null;
+    const token = getToken();
+    const res = await fetch(url, { headers: token ? { Authorization: "Bearer " + token } : {} });
+    if (res.status === 401) { logout(); throw new ApiError(401, "Sesión vencida"); }
+    if (!res.ok) throw new ApiError(res.status, "No pudimos abrir el archivo");
+    const blob = await res.blob();
+    return { url: URL.createObjectURL(blob), tipo: blob.type };
+  }
+
   // ---------- otros ----------
   async function historial() {
     if (isMock()) { await delay(150); return window.MOCK_HISTORIAL; }
@@ -325,6 +385,8 @@ window.AppApi = (function () {
     copagos,
     reintegros, crearReintegro, comprobanteBlobUrl,
     ddjj, guardarDdjj,
+    tramiteTipos, tramiteFormulario, tramites, tramite, crearTramite,
+    agregarDocumentacion, anularTramite, archivoBlobUrl,
     comunidad, recordatorios,
     fmtFecha, fmtPesos, escapeHtml,
   };
